@@ -10,10 +10,9 @@
  */
 constexpr std::uint32_t maxLoadString = 128;
 
-// Global Variables:
 HINSTANCE hInst;                                // current instance
-WCHAR szTitle[maxLoadString];                  // The title bar text
-WCHAR szWindowClass[maxLoadString];            // the main window class name
+WCHAR windowTitle[maxLoadString];                  // The title bar text
+WCHAR windowClassName[maxLoadString];            // the main window class name
 
 ATOM                MyRegisterClass(HINSTANCE hInstance);
 BOOL                InitInstance(HINSTANCE, int);
@@ -22,33 +21,30 @@ INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 
 int APIENTRY wWinMain(
 	_In_ HINSTANCE hInstance,
-	_In_opt_ HINSTANCE hPrevInstance,
+	_In_opt_ HINSTANCE __prevInst,
 	_In_ LPWSTR    lpCmdLine,
-	_In_ int       nCmdShow
+	_In_ int       showWindowMode
 ) {
 
 	// TODO: Place code here.
 
 	// Initialize global strings
-	LoadString(hInstance, IDS_APP_TITLE, szTitle, maxLoadString);
-	LoadString(hInstance, IDC_FASTSWITCHAUDIO, szWindowClass, maxLoadString);
+	LoadString(hInstance, IDS_APP_TITLE, windowTitle, maxLoadString);
+	LoadString(hInstance, IDC_FASTSWITCHAUDIO, windowClassName, maxLoadString);
 	MyRegisterClass(hInstance);
-
+	
 	// Perform application initialization:
-	if (!InitInstance(hInstance, nCmdShow))
-	{
+	if (!InitInstance(hInstance, showWindowMode)) {
 		return FALSE;
 	}
 
-	HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_FASTSWITCHAUDIO));
+	HACCEL acceleratorTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_FASTSWITCHAUDIO));
 
 	MSG msg;
 
 	// Main message loop:
-	while (GetMessage(&msg, nullptr, 0, 0))
-	{
-		if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
-		{
+	while (GetMessage(&msg, nullptr, 0, 0)) {
+		if (!TranslateAccelerator(msg.hwnd, acceleratorTable, &msg)) {
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
@@ -76,7 +72,7 @@ ATOM MyRegisterClass(HINSTANCE hInstance) {
 	wcex.hCursor        = LoadCursor(nullptr, IDC_ARROW);
 	wcex.hbrBackground  = (HBRUSH)(COLOR_WINDOWFRAME);
 	wcex.lpszMenuName   = MAKEINTRESOURCEW(IDC_FASTSWITCHAUDIO);
-	wcex.lpszClassName  = szWindowClass;
+	wcex.lpszClassName  = windowClassName;
 	wcex.hIconSm        = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
 
 	return RegisterClassExW(&wcex);
@@ -92,17 +88,19 @@ ATOM MyRegisterClass(HINSTANCE hInstance) {
 //        In this function, we save the instance handle in a global variable and
 //        create and display the main program window.
 //
-BOOL InitInstance(HINSTANCE hInstance, int nCmdShow) {
+BOOL InitInstance(HINSTANCE hInstance, int showWindowMode) {
 	hInst = hInstance; // Store instance handle in our global variable
 
-	HWND hWnd = CreateWindow(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
+	HWND hWnd = CreateWindow(
+		windowClassName,
+		windowTitle, WS_OVERLAPPEDWINDOW,
 		CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
 
 	if (!hWnd) {
 		return FALSE;
 	}
 
-	ShowWindow(hWnd, nCmdShow);
+	ShowWindow(hWnd, showWindowMode);
 	UpdateWindow(hWnd);
 
 	return TRUE;
