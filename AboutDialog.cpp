@@ -1,6 +1,6 @@
 #include "AboutDialog.h"
 
-INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
+INT_PTR CALLBACK About(HWND dialogWindow, UINT message, WPARAM wParam, LPARAM lParam) {
 
 	switch (message) {
 
@@ -12,7 +12,7 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
 		case WM_COMMAND:
 		{
 			if (LOWORD(wParam) == IDOK || LOWORD(wParam) == IDCANCEL) {
-				EndDialog(hDlg, LOWORD(wParam));
+				EndDialog(dialogWindow, LOWORD(wParam));
 				return (INT_PTR)TRUE;
 			}
 			break;
