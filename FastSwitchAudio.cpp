@@ -4,6 +4,7 @@
 #include "framework.h"
 #include "FastSwitchAudio.h"
 #include <cstdint>
+#include "AboutDialog.h"
 
 /**
  * @brief Maximum size we're allocating for strings when using `LoadStringW`.
@@ -17,7 +18,6 @@ WCHAR windowClassName[maxLoadString];            // the main window class name
 ATOM                MyRegisterClass(HINSTANCE hInstance);
 BOOL                InitInstance(HINSTANCE, int);
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
-INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 
 int APIENTRY wWinMain(
 	_In_ HINSTANCE hInstance,
@@ -116,7 +116,7 @@ BOOL InitInstance(HINSTANCE hInstance, int showWindowMode) {
 //  WM_DESTROY  - post a quit message and return
 //
 //
-LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
+LRESULT CALLBACK WndProc(HWND window, UINT message, WPARAM wParam, LPARAM lParam) {
 
 	switch (message) {
 
@@ -128,17 +128,17 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 			switch (wmId) {
 
 				case IDM_ABOUT: {
-					DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
+					DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), window, About);
 					break;
 				}
 
 				case IDM_EXIT: {
-					DestroyWindow(hWnd);
+					DestroyWindow(window);
 					break;
 				}
 
 				default: {
-					return DefWindowProc(hWnd, message, wParam, lParam);
+					return DefWindowProc(window, message, wParam, lParam);
 				}
 
 			}
@@ -148,9 +148,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 		
 		case WM_PAINT: {
 				PAINTSTRUCT ps;
-				HDC hdc = BeginPaint(hWnd, &ps);
+				HDC hdc = BeginPaint(window, &ps);
 				// TODO: Add any drawing code that uses hdc here...
-				EndPaint(hWnd, &ps);
+				EndPaint(window, &ps);
 			break;
 		}
 
@@ -160,31 +160,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 		}
 
 		default: {
-			return DefWindowProc(hWnd, message, wParam, lParam);
+			return DefWindowProc(window, message, wParam, lParam);
 		}
 
 	}
 
-}
-
-// Message handler for about box.
-INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
-
-	switch (message) {
-
-		case WM_INITDIALOG: {
-			return (INT_PTR)TRUE;
-		}
-
-		case WM_COMMAND: {
-			if (LOWORD(wParam) == IDOK || LOWORD(wParam) == IDCANCEL) {
-				EndDialog(hDlg, LOWORD(wParam));
-				return (INT_PTR)TRUE;
-			}
-			break;
-		}
-
-	}
-
-	return (INT_PTR)FALSE;
 }
