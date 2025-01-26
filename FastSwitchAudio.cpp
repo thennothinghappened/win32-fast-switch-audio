@@ -53,11 +53,11 @@ int APIENTRY wWinMain(
 	return (int) msg.wParam;
 }
 
-//
-//  FUNCTION: MyRegisterClass()
-//
-//  PURPOSE: Registers the window class.
-//
+/**
+ * @brief Registers our window's class.
+ * @param hInstance
+ * @returns Unique identifier of the class.
+ */
 ATOM MyRegisterClass(HINSTANCE hInstance) {
 
 	WNDCLASSEXW wcex {
