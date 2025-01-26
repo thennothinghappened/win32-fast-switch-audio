@@ -60,7 +60,7 @@ int APIENTRY wWinMain(
  */
 ATOM MyRegisterClass(HINSTANCE hInstance) {
 
-	WNDCLASSEXW wcex {
+	WNDCLASSEXW windowClass {
 		.cbSize = sizeof(WNDCLASSEX),
 		.style = CS_HREDRAW | CS_VREDRAW,
 		.lpfnWndProc = WndProc,
@@ -72,10 +72,10 @@ ATOM MyRegisterClass(HINSTANCE hInstance) {
 		.hbrBackground = (HBRUSH)(COLOR_WINDOWFRAME),
 		.lpszMenuName = MAKEINTRESOURCEW(IDC_FASTSWITCHAUDIO),
 		.lpszClassName = windowClassName,
-		.hIconSm = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL)),
+		.hIconSm = LoadIcon(windowClass.hInstance, MAKEINTRESOURCE(IDI_SMALL)),
 	};
 
-	return RegisterClassEx(&wcex);
+	return RegisterClassEx(&windowClass);
 }
 
 //
