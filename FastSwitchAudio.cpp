@@ -59,23 +59,23 @@ int APIENTRY wWinMain(
 //  PURPOSE: Registers the window class.
 //
 ATOM MyRegisterClass(HINSTANCE hInstance) {
-	WNDCLASSEXW wcex;
 
-	wcex.cbSize = sizeof(WNDCLASSEX);
+	WNDCLASSEXW wcex {
+		.cbSize = sizeof(WNDCLASSEX),
+		.style = CS_HREDRAW | CS_VREDRAW,
+		.lpfnWndProc = WndProc,
+		.cbClsExtra = 0,
+		.cbWndExtra = 0,
+		.hInstance = hInstance,
+		.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_FASTSWITCHAUDIO)),
+		.hCursor = LoadCursor(nullptr, IDC_ARROW),
+		.hbrBackground = (HBRUSH)(COLOR_WINDOWFRAME),
+		.lpszMenuName = MAKEINTRESOURCEW(IDC_FASTSWITCHAUDIO),
+		.lpszClassName = windowClassName,
+		.hIconSm = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL)),
+	};
 
-	wcex.style          = CS_HREDRAW | CS_VREDRAW;
-	wcex.lpfnWndProc    = WndProc;
-	wcex.cbClsExtra     = 0;
-	wcex.cbWndExtra     = 0;
-	wcex.hInstance      = hInstance;
-	wcex.hIcon          = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_FASTSWITCHAUDIO));
-	wcex.hCursor        = LoadCursor(nullptr, IDC_ARROW);
-	wcex.hbrBackground  = (HBRUSH)(COLOR_WINDOWFRAME);
-	wcex.lpszMenuName   = MAKEINTRESOURCEW(IDC_FASTSWITCHAUDIO);
-	wcex.lpszClassName  = windowClassName;
-	wcex.hIconSm        = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
-
-	return RegisterClassExW(&wcex);
+	return RegisterClassEx(&wcex);
 }
 
 //
