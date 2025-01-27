@@ -165,4 +165,5 @@ LRESULT CALLBACK WndProc(HWND window, UINT message, WPARAM wParam, LPARAM lParam
 
 	}
 
+	return 0;
 }
