@@ -4,6 +4,8 @@
 #include "framework.h"
 #include "FastSwitchAudio.h"
 #include <cstdint>
+#include <format>
+#include <mmdeviceapi.h>
 #include "AboutDialog.h"
 
 /**
@@ -11,12 +13,15 @@
  */
 constexpr std::uint32_t maxLoadString = 128;
 
-HINSTANCE hInst;                                // current instance
+HINSTANCE hInst;
+HWND mainWindow;
+
+IMMDeviceEnumerator* mmDeviceEnumerator;
+
 WCHAR windowTitle[maxLoadString];                  // The title bar text
 WCHAR windowClassName[maxLoadString];            // the main window class name
 
 ATOM                MyRegisterClass(HINSTANCE hInstance);
-BOOL                InitInstance(HINSTANCE, int);
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 
 int APIENTRY wWinMain(
@@ -26,20 +31,54 @@ int APIENTRY wWinMain(
 	_In_ int       showWindowMode
 ) {
 
-	// TODO: Place code here.
+	hInst = hInstance;
 
-	// Initialize global strings
-	LoadString(hInstance, IDS_APP_TITLE, windowTitle, maxLoadString);
-	LoadString(hInstance, IDC_FASTSWITCHAUDIO, windowClassName, maxLoadString);
-	MyRegisterClass(hInstance);
+	LoadString(hInst, IDS_APP_TITLE, windowTitle, maxLoadString);
+	LoadString(hInst, IDC_FASTSWITCHAUDIO, windowClassName, maxLoadString);
+
+	MyRegisterClass(hInst);
 	
-	// Perform application initialization:
-	if (!InitInstance(hInstance, showWindowMode)) {
+	mainWindow = CreateWindow(
+		windowClassName,
+		windowTitle, WS_OVERLAPPEDWINDOW,
+		CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInst, nullptr
+	);
+
+	if (mainWindow == nullptr) {
 		return FALSE;
 	}
 
-	HACCEL acceleratorTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_FASTSWITCHAUDIO));
+	ShowWindow(mainWindow, showWindowMode);
+	UpdateWindow(mainWindow);
 
+	if (CoCreateInstance(__uuidof(MMDeviceEnumerator), nullptr, CLSCTX_ALL, __uuidof(IMMDeviceEnumerator), (void**)&mmDeviceEnumerator) != S_OK) {
+		MessageBox(mainWindow, L"Failed to get an audio device enumerator instance!", L"Fatal Error", MB_OK | MB_ICONERROR);
+		return FALSE;
+	}
+
+	IMMDeviceCollection* audioOutputs;
+	
+	if (mmDeviceEnumerator->EnumAudioEndpoints(eRender, DEVICE_STATE_ACTIVE, &audioOutputs) != S_OK) {
+		
+		MessageBox(mainWindow, L"Failed to retrieve list of audio output devices", L"Fatal Error", MB_OK | MB_ICONERROR);
+		mmDeviceEnumerator->Release();
+
+		return FALSE;
+	}
+
+	UINT outputCount;
+
+	if (audioOutputs->GetCount(&outputCount) != S_OK) {
+		
+		MessageBox(mainWindow, L"Failed to count # of audio output devices.", L"Fatal Error", MB_OK | MB_ICONERROR);
+		mmDeviceEnumerator->Release();
+
+		return FALSE;
+	}
+
+	MessageBox(mainWindow, std::format(L"Found {} enabled audio ouputs!", outputCount).c_str(), L"Hello!", MB_OK | MB_ICONINFORMATION);
+
+	HACCEL acceleratorTable = LoadAccelerators(hInst, MAKEINTRESOURCE(IDC_FASTSWITCHAUDIO));
 	MSG msg;
 
 	// Main message loop:
@@ -76,34 +115,6 @@ ATOM MyRegisterClass(HINSTANCE hInstance) {
 	};
 
 	return RegisterClassEx(&windowClass);
-}
-
-//
-//   FUNCTION: InitInstance(HINSTANCE, int)
-//
-//   PURPOSE: Saves instance handle and creates main window
-//
-//   COMMENTS:
-//
-//        In this function, we save the instance handle in a global variable and
-//        create and display the main program window.
-//
-BOOL InitInstance(HINSTANCE hInstance, int showWindowMode) {
-	hInst = hInstance; // Store instance handle in our global variable
-
-	HWND hWnd = CreateWindow(
-		windowClassName,
-		windowTitle, WS_OVERLAPPEDWINDOW,
-		CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
-
-	if (!hWnd) {
-		return FALSE;
-	}
-
-	ShowWindow(hWnd, showWindowMode);
-	UpdateWindow(hWnd);
-
-	return TRUE;
 }
 
 //
