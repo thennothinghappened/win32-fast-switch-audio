@@ -69,6 +69,7 @@ int APIENTRY wWinMain(
 	if (FAILED(audioOutputs->GetCount(&outputCount))) {
 		
 		MessageBox(mainWindow, L"Failed to count # of audio output devices.", L"Fatal Error", MB_OK | MB_ICONERROR);
+		audioOutputs->Release();
 		mmDeviceEnumerator->Release();
 
 		return FALSE;
