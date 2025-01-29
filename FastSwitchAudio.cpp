@@ -77,6 +77,25 @@ int APIENTRY wWinMain(
 
 	MessageBox(mainWindow, std::format(L"Found {} enabled audio ouputs!", outputCount).c_str(), L"Hello!", MB_OK | MB_ICONINFORMATION);
 
+	for (std::uint32_t i = 0; i < outputCount; i ++) {
+		
+		IMMDevice* output;
+		LPWSTR id;
+		
+		if (FAILED(audioOutputs->Item(i, &output))) {
+			// TODO!
+		}
+
+		if (FAILED(output->GetId(&id))) {
+			// TODO!
+		}
+
+		MessageBox(mainWindow, id, L"Audio device!", MB_OK | MB_ICONINFORMATION);
+		output->Release();
+
+	}
+	
+
 	HACCEL acceleratorTable = LoadAccelerators(hInst, MAKEINTRESOURCE(IDC_FASTSWITCHAUDIO));
 	MSG msg;
 
