@@ -21,8 +21,8 @@ IMMDeviceEnumerator* mmDeviceEnumerator;
 WCHAR windowTitle[maxLoadString];                  // The title bar text
 WCHAR windowClassName[maxLoadString];            // the main window class name
 
-ATOM                MyRegisterClass(HINSTANCE hInstance);
 void loadStrings(HINSTANCE hInstance);
+ATOM                registerWindowClass(HINSTANCE hInstance);
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 
 int APIENTRY wWinMain(
@@ -34,9 +34,8 @@ int APIENTRY wWinMain(
 
 	hInst = hInstance;
 
-
-	MyRegisterClass(hInst);
 	loadStrings(hInst);
+	registerWindowClass(hInst);
 	
 	mainWindow = CreateWindow(
 		windowClassName,
@@ -102,7 +101,7 @@ void loadStrings(HINSTANCE hInstance) {
  * @param hInstance
  * @returns Unique identifier of the class.
  */
-ATOM MyRegisterClass(HINSTANCE hInstance) {
+ATOM registerWindowClass(HINSTANCE hInstance) {
 
 	WNDCLASSEXW windowClass {
 		.cbSize = sizeof(WNDCLASSEX),
