@@ -33,7 +33,7 @@ int APIENTRY wWinMain(
 	_In_ int       showWindowMode
 ) {
 
-	if (FAILED(CoInitializeEx(nullptr, COINIT_MULTITHREADED))) {
+	if (FAILED(CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE))) {
 		return FALSE;
 	}
 
