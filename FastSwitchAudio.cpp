@@ -17,6 +17,7 @@ HINSTANCE hInst;
 HWND mainWindow;
 
 IMMDeviceEnumerator* mmDeviceEnumerator;
+IMMDeviceCollection* audioOutputs;
 
 WCHAR windowTitle[maxLoadString];                  // The title bar text
 WCHAR windowClassName[maxLoadString];            // the main window class name
@@ -54,8 +55,6 @@ int APIENTRY wWinMain(
 		MessageBox(mainWindow, L"Failed to get an audio device enumerator instance!", L"Fatal Error", MB_OK | MB_ICONERROR);
 		return FALSE;
 	}
-
-	IMMDeviceCollection* audioOutputs;
 	
 	if (mmDeviceEnumerator->EnumAudioEndpoints(eRender, DEVICE_STATE_ACTIVE, &audioOutputs) != S_OK) {
 		
