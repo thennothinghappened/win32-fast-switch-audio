@@ -33,8 +33,12 @@ int APIENTRY wWinMain(
 	_In_ int       showWindowMode
 ) {
 
-	hInst = hInstance;
+	if (FAILED(CoInitializeEx(nullptr, COINIT_MULTITHREADED))) {
+		return FALSE;
+	}
 
+	hInst = hInstance;
+	
 	loadStrings(hInst);
 	registerWindowClass(hInst);
 	
@@ -60,7 +64,7 @@ int APIENTRY wWinMain(
 		
 		MessageBox(mainWindow, L"Failed to retrieve list of audio output devices", L"Fatal Error", MB_OK | MB_ICONERROR);
 		mmDeviceEnumerator->Release();
-
+		
 		return FALSE;
 	}
 	
