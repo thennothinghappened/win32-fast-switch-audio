@@ -6,6 +6,7 @@
 #include <cstdint>
 #include <format>
 #include <mmdeviceapi.h>
+#include <atlbase.h>
 #include "AboutDialog.h"
 
 /**
@@ -16,8 +17,8 @@ constexpr std::uint32_t maxLoadString = 128;
 HINSTANCE hInst;
 HWND mainWindow;
 
-IMMDeviceEnumerator* mmDeviceEnumerator;
-IMMDeviceCollection* audioOutputs;
+CComPtr<IMMDeviceEnumerator> mmDeviceEnumerator;
+CComPtr<IMMDeviceCollection> audioOutputs;
 
 WCHAR windowTitle[maxLoadString];                  // The title bar text
 WCHAR windowClassName[maxLoadString];            // the main window class name
@@ -55,27 +56,20 @@ int APIENTRY wWinMain(
 	ShowWindow(mainWindow, showWindowMode);
 	UpdateWindow(mainWindow);
 
-	if (FAILED(CoCreateInstance(__uuidof(MMDeviceEnumerator), nullptr, CLSCTX_ALL, IID_PPV_ARGS(&mmDeviceEnumerator)))) {
+	if (FAILED(mmDeviceEnumerator.CoCreateInstance(__uuidof(MMDeviceEnumerator)))) {
 		MessageBox(mainWindow, L"Failed to get an audio device enumerator instance!", L"Fatal Error", MB_OK | MB_ICONERROR);
 		return FALSE;
 	}
 	
 	if (FAILED(mmDeviceEnumerator->EnumAudioEndpoints(eRender, DEVICE_STATE_ACTIVE, &audioOutputs))) {
-		
 		MessageBox(mainWindow, L"Failed to retrieve list of audio output devices", L"Fatal Error", MB_OK | MB_ICONERROR);
-		mmDeviceEnumerator->Release();
-		
 		return FALSE;
 	}
 	
 	std::uint32_t outputCount;
 
 	if (FAILED(audioOutputs->GetCount(&outputCount))) {
-		
 		MessageBox(mainWindow, L"Failed to count # of audio output devices.", L"Fatal Error", MB_OK | MB_ICONERROR);
-		audioOutputs->Release();
-		mmDeviceEnumerator->Release();
-
 		return FALSE;
 	}
 
@@ -83,21 +77,19 @@ int APIENTRY wWinMain(
 
 	for (std::uint32_t i = 0; i < outputCount; i ++) {
 		
-		IMMDevice* output;
+		CComPtr<IMMDevice> device;
 		LPWSTR id;
 		
-		if (FAILED(audioOutputs->Item(i, &output))) {
+		if (FAILED(audioOutputs->Item(i, &device))) {
 			// TODO!
 		}
 
-		if (FAILED(output->GetId(&id))) {
+		if (FAILED(device->GetId(&id))) {
 			// TODO!
 		}
 
 		MessageBox(mainWindow, id, L"Audio device!", MB_OK | MB_ICONINFORMATION);
-
 		CoTaskMemFree(id);
-		output->Release();
 
 	}
 	
@@ -189,7 +181,9 @@ LRESULT CALLBACK WndProc(HWND window, UINT message, WPARAM wParam, LPARAM lParam
 		case WM_PAINT: {
 				PAINTSTRUCT ps;
 				HDC hdc = BeginPaint(window, &ps);
-				// TODO: Add any drawing code that uses hdc here...
+				
+				FillRect(hdc, &ps.rcPaint, HBRUSH(COLOR_BACKGROUND + 2));
+
 				EndPaint(window, &ps);
 			break;
 		}
