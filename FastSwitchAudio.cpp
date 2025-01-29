@@ -56,7 +56,7 @@ int APIENTRY wWinMain(
 	loadStrings(hInst);
 	registerWindowClass(hInst);
 	
-	mainWindow = CreateWindow(
+	mainWindow = CreateWindowW(
 		windowClassName,
 		windowTitle, WS_OVERLAPPEDWINDOW,
 		CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInst, nullptr
@@ -70,26 +70,26 @@ int APIENTRY wWinMain(
 	UpdateWindow(mainWindow);
 
 	if (FAILED(mmDeviceEnumerator.CoCreateInstance(__uuidof(MMDeviceEnumerator)))) {
-		MessageBox(mainWindow, L"Failed to get an audio device enumerator instance!", L"Fatal Error", MB_OK | MB_ICONERROR);
+		MessageBoxW(mainWindow, L"Failed to get an audio device enumerator instance!", L"Fatal Error", MB_OK | MB_ICONERROR);
 		return FALSE;
 	}
 	
 	if (FAILED(mmDeviceEnumerator->EnumAudioEndpoints(eRender, DEVICE_STATE_ACTIVE, &audioOutputs))) {
-		MessageBox(mainWindow, L"Failed to retrieve list of audio output devices", L"Fatal Error", MB_OK | MB_ICONERROR);
+		MessageBoxW(mainWindow, L"Failed to retrieve list of audio output devices", L"Fatal Error", MB_OK | MB_ICONERROR);
 		return FALSE;
 	}
 	
 	std::uint32_t outputCount;
 
 	if (FAILED(audioOutputs->GetCount(&outputCount))) {
-		MessageBox(mainWindow, L"Failed to count # of audio output devices.", L"Fatal Error", MB_OK | MB_ICONERROR);
+		MessageBoxW(mainWindow, L"Failed to count # of audio output devices.", L"Fatal Error", MB_OK | MB_ICONERROR);
 		return FALSE;
 	}
 
 	RECT clientRect;
 	GetClientRect(mainWindow, &clientRect);
 
-	listView = CreateWindow(WC_LISTVIEW, L"",
+	listView = CreateWindowW(WC_LISTVIEW, L"",
 		WS_CHILD | LVS_LIST | LVS_SINGLESEL,
 		0, 0,
 		clientRect.right - clientRect.left,
@@ -136,10 +136,10 @@ int APIENTRY wWinMain(
 	MSG msg;
 
 	// Main message loop:
-	while (GetMessage(&msg, nullptr, 0, 0)) {
-		if (!TranslateAccelerator(msg.hwnd, acceleratorTable, &msg)) {
+	while (GetMessageW(&msg, nullptr, 0, 0)) {
+		if (!TranslateAcceleratorW(msg.hwnd, acceleratorTable, &msg)) {
 			TranslateMessage(&msg);
-			DispatchMessage(&msg);
+			DispatchMessageW(&msg);
 		}
 	}
 
@@ -147,8 +147,8 @@ int APIENTRY wWinMain(
 }
 
 void loadStrings(HINSTANCE hInstance) {
-	LoadString(hInst, IDS_APP_TITLE, windowTitle, maxLoadString);
-	LoadString(hInst, IDC_FASTSWITCHAUDIO, windowClassName, maxLoadString);
+	LoadStringW(hInst, IDS_APP_TITLE, windowTitle, maxLoadString);
+	LoadStringW(hInst, IDC_FASTSWITCHAUDIO, windowClassName, maxLoadString);
 }
 
 /**
@@ -173,7 +173,7 @@ ATOM registerWindowClass(HINSTANCE hInstance) {
 		.hIconSm = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_SMALL)),
 	};
 
-	return RegisterClassEx(&windowClass);
+	return RegisterClassExW(&windowClass);
 }
 
 //
@@ -198,7 +198,7 @@ LRESULT CALLBACK WndProc(HWND window, UINT message, WPARAM wParam, LPARAM lParam
 			switch (wmId) {
 
 				case IDM_ABOUT: {
-					DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), window, About);
+					DialogBoxW(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), window, About);
 					break;
 				}
 
@@ -208,7 +208,7 @@ LRESULT CALLBACK WndProc(HWND window, UINT message, WPARAM wParam, LPARAM lParam
 				}
 
 				default: {
-					return DefWindowProc(window, message, wParam, lParam);
+					return DefWindowProcW(window, message, wParam, lParam);
 				}
 
 			}
@@ -242,7 +242,7 @@ LRESULT CALLBACK WndProc(HWND window, UINT message, WPARAM wParam, LPARAM lParam
 
 						ListView_GetItem(listView, &item);
 
-						MessageBox(mainWindow, buffer, L"Chosen item", MB_OK | MB_ICONINFORMATION);
+						MessageBoxW(mainWindow, buffer, L"Chosen item", MB_OK | MB_ICONINFORMATION);
 						
 						break;
 					}
@@ -286,7 +286,7 @@ LRESULT CALLBACK WndProc(HWND window, UINT message, WPARAM wParam, LPARAM lParam
 		}
 
 		default: {
-			return DefWindowProc(window, message, wParam, lParam);
+			return DefWindowProcW(window, message, wParam, lParam);
 		}
 
 	}
