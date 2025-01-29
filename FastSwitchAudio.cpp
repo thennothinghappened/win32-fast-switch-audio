@@ -51,12 +51,12 @@ int APIENTRY wWinMain(
 	ShowWindow(mainWindow, showWindowMode);
 	UpdateWindow(mainWindow);
 
-	if (CoCreateInstance(__uuidof(MMDeviceEnumerator), nullptr, CLSCTX_ALL, __uuidof(IMMDeviceEnumerator), (void**)&mmDeviceEnumerator) != S_OK) {
+	if (FAILED(CoCreateInstance(__uuidof(MMDeviceEnumerator), nullptr, CLSCTX_ALL, __uuidof(IMMDeviceEnumerator), (void**)&mmDeviceEnumerator))) {
 		MessageBox(mainWindow, L"Failed to get an audio device enumerator instance!", L"Fatal Error", MB_OK | MB_ICONERROR);
 		return FALSE;
 	}
 	
-	if (mmDeviceEnumerator->EnumAudioEndpoints(eRender, DEVICE_STATE_ACTIVE, &audioOutputs) != S_OK) {
+	if (FAILED(mmDeviceEnumerator->EnumAudioEndpoints(eRender, DEVICE_STATE_ACTIVE, &audioOutputs))) {
 		
 		MessageBox(mainWindow, L"Failed to retrieve list of audio output devices", L"Fatal Error", MB_OK | MB_ICONERROR);
 		mmDeviceEnumerator->Release();
@@ -66,7 +66,7 @@ int APIENTRY wWinMain(
 
 	UINT outputCount;
 
-	if (audioOutputs->GetCount(&outputCount) != S_OK) {
+	if (FAILED(audioOutputs->GetCount(&outputCount))) {
 		
 		MessageBox(mainWindow, L"Failed to count # of audio output devices.", L"Fatal Error", MB_OK | MB_ICONERROR);
 		mmDeviceEnumerator->Release();
