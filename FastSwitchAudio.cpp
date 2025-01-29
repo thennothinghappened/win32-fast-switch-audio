@@ -95,6 +95,8 @@ int APIENTRY wWinMain(
 		}
 
 		MessageBox(mainWindow, id, L"Audio device!", MB_OK | MB_ICONINFORMATION);
+
+		CoTaskMemFree(id);
 		output->Release();
 
 	}
