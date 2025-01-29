@@ -22,6 +22,7 @@ WCHAR windowTitle[maxLoadString];                  // The title bar text
 WCHAR windowClassName[maxLoadString];            // the main window class name
 
 ATOM                MyRegisterClass(HINSTANCE hInstance);
+void loadStrings(HINSTANCE hInstance);
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 
 int APIENTRY wWinMain(
@@ -33,10 +34,9 @@ int APIENTRY wWinMain(
 
 	hInst = hInstance;
 
-	LoadString(hInst, IDS_APP_TITLE, windowTitle, maxLoadString);
-	LoadString(hInst, IDC_FASTSWITCHAUDIO, windowClassName, maxLoadString);
 
 	MyRegisterClass(hInst);
+	loadStrings(hInst);
 	
 	mainWindow = CreateWindow(
 		windowClassName,
@@ -90,6 +90,11 @@ int APIENTRY wWinMain(
 	}
 
 	return (int) msg.wParam;
+}
+
+void loadStrings(HINSTANCE hInstance) {
+	LoadString(hInst, IDS_APP_TITLE, windowTitle, maxLoadString);
+	LoadString(hInst, IDC_FASTSWITCHAUDIO, windowClassName, maxLoadString);
 }
 
 /**
