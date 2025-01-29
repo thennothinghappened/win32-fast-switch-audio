@@ -64,7 +64,7 @@ int APIENTRY wWinMain(
 		return FALSE;
 	}
 
-	UINT outputCount;
+	std::uint32_t outputCount;
 
 	if (FAILED(audioOutputs->GetCount(&outputCount))) {
 		
