@@ -5,9 +5,14 @@
 #include "FastSwitchAudio.h"
 #include <cstdint>
 #include <format>
+#include <vector>
 #include <mmdeviceapi.h>
 #include <atlbase.h>
+#include <CommCtrl.h>
+#include <uxtheme.h>
 #include "AboutDialog.h"
+#pragma comment(lib, "comctl32")
+#pragma comment(lib, "uxtheme")
 
 /**
  * @brief Maximum size we're allocating for strings when using `LoadStringW`.
@@ -16,6 +21,7 @@ constexpr std::uint32_t maxLoadString = 128;
 
 HINSTANCE hInst;
 HWND mainWindow;
+HWND listView;
 
 CComPtr<IMMDeviceEnumerator> mmDeviceEnumerator;
 CComPtr<IMMDeviceCollection> audioOutputs;
@@ -34,11 +40,18 @@ int APIENTRY wWinMain(
 	_In_ int       showWindowMode
 ) {
 
+	hInst = hInstance;
+
 	if (FAILED(CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE))) {
 		return FALSE;
 	}
 
-	hInst = hInstance;
+	const INITCOMMONCONTROLSEX commonControlsInitData {
+		.dwSize = sizeof(INITCOMMONCONTROLSEX),
+		.dwICC = ICC_LISTVIEW_CLASSES
+	};
+
+	InitCommonControlsEx(&commonControlsInitData);
 	
 	loadStrings(hInst);
 	registerWindowClass(hInst);
@@ -73,7 +86,19 @@ int APIENTRY wWinMain(
 		return FALSE;
 	}
 
-	MessageBox(mainWindow, std::format(L"Found {} enabled audio ouputs!", outputCount).c_str(), L"Hello!", MB_OK | MB_ICONINFORMATION);
+	RECT clientRect;
+	GetClientRect(mainWindow, &clientRect);
+
+	listView = CreateWindow(WC_LISTVIEW, L"",
+		WS_CHILD | LVS_LIST | LVS_SINGLESEL,
+		0, 0,
+		clientRect.right - clientRect.left,
+		clientRect.bottom - clientRect.top,
+		mainWindow,
+		nullptr, hInst, nullptr
+	);
+
+	//SetWindowTheme(listView, L"Explorer", nullptr);
 
 	for (std::uint32_t i = 0; i < outputCount; i ++) {
 		
@@ -82,17 +107,30 @@ int APIENTRY wWinMain(
 		
 		if (FAILED(audioOutputs->Item(i, &device))) {
 			// TODO!
+			return FALSE;
 		}
 
 		if (FAILED(device->GetId(&id))) {
 			// TODO!
+			return FALSE;
 		}
 
-		MessageBox(mainWindow, id, L"Audio device!", MB_OK | MB_ICONINFORMATION);
+		const LVITEM listItem {
+			.mask = LVIF_TEXT,
+			.iItem = static_cast<int>(i),
+			.pszText = id,
+		};
+
+		if (ListView_InsertItem(listView, &listItem) == -1) {
+			return FALSE;
+		}
+
 		CoTaskMemFree(id);
 
 	}
-	
+
+	ShowWindow(listView, showWindowMode);
+	UpdateWindow(listView);
 
 	HACCEL acceleratorTable = LoadAccelerators(hInst, MAKEINTRESOURCE(IDC_FASTSWITCHAUDIO));
 	MSG msg;
@@ -177,12 +215,66 @@ LRESULT CALLBACK WndProc(HWND window, UINT message, WPARAM wParam, LPARAM lParam
 			
 			break;
 		}
+
+		case WM_NOTIFY: {
+
+			NMHDR* info = reinterpret_cast<NMHDR*>(lParam);
+			
+			if (info->hwndFrom == listView) {
+				switch (info->code) {
+
+					case NM_DBLCLK: {
+					
+						std::int32_t itemIndex = ListView_GetNextItem(listView, -1, LVNI_SELECTED);
+
+						if (itemIndex < 0) {
+							break;
+						}
+
+						wchar_t buffer[64];
+						
+						LVITEM item {
+							.mask = LVIF_TEXT,
+							.iItem = itemIndex,
+							.pszText = buffer,
+							.cchTextMax = sizeof(buffer) / sizeof(wchar_t)
+						};
+
+						ListView_GetItem(listView, &item);
+
+						MessageBox(mainWindow, buffer, L"Chosen item", MB_OK | MB_ICONINFORMATION);
+						
+						break;
+					}
+
+				}
+			}
+
+			break;
+
+		}
+
+		case WM_SIZE: {
+			
+			RECT clientRect;
+			GetClientRect(mainWindow, &clientRect);
+
+			SetWindowPos(listView, nullptr,
+				0, 0,
+				clientRect.right - clientRect.left,
+				clientRect.bottom - clientRect.top,
+				SWP_NOACTIVATE
+			);
+
+			break;
+
+		}
 		
 		case WM_PAINT: {
 				PAINTSTRUCT ps;
 				HDC hdc = BeginPaint(window, &ps);
 				
-				FillRect(hdc, &ps.rcPaint, HBRUSH(COLOR_BACKGROUND + 2));
+				//FillRect(hdc, &ps.rcPaint, HBRUSH(COLOR_BACKGROUND + 2));
 
 				EndPaint(window, &ps);
 			break;
