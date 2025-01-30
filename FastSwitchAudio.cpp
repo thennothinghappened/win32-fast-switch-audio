@@ -196,16 +196,15 @@ LRESULT CALLBACK WndProc(HWND window, UINT message, WPARAM wParam, LPARAM lParam
 		case WM_SIZE: {
 			listView->updateSize();
 			break;
-
 		}
 		
 		case WM_PAINT: {
-				PAINTSTRUCT ps;
-				HDC hdc = BeginPaint(window, &ps);
-				
-				//FillRect(hdc, &ps.rcPaint, HBRUSH(COLOR_BACKGROUND + 2));
 
-				EndPaint(window, &ps);
+			PAINTSTRUCT ps;
+			HDC hdc = BeginPaint(window, &ps);
+
+			EndPaint(window, &ps);
+
 			break;
 		}
 

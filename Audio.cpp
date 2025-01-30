@@ -27,7 +27,7 @@ namespace Audio {
 		if (FAILED(mmOutputs->GetCount(&outputCount))) {
 			return Error { L"Failed to count # of audio output devices" };
 		}
-
+		
 		devices.reserve(outputCount);
 
 		for (std::uint32_t i = 0; i < outputCount; i++) {
