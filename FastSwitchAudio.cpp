@@ -6,11 +6,10 @@
 #include <cstdint>
 #include <format>
 #include <vector>
-#include <mmdeviceapi.h>
-#include <atlbase.h>
-#include <CommCtrl.h>
-#include <uxtheme.h>
+#include <ranges>
 #include "AboutDialog.h"
+#include "Audio.h"
+#include "ListView.h"
 #pragma comment(lib, "comctl32")
 #pragma comment(lib, "uxtheme")
 
@@ -19,18 +18,14 @@
  */
 constexpr std::uint32_t maxLoadString = 128;
 
+Audio::DeviceManager audioDeviceManager;
+
 HINSTANCE hInst;
 HWND mainWindow;
-HWND listView;
 
-CComPtr<IMMDeviceEnumerator> mmDeviceEnumerator;
-CComPtr<IMMDeviceCollection> audioOutputs;
-
+WCHAR windowClassName[maxLoadString];
 WCHAR windowTitle[maxLoadString];                  // The title bar text
-WCHAR windowClassName[maxLoadString];            // the main window class name
 
-void loadStrings(HINSTANCE hInstance);
-ATOM                registerWindowClass(HINSTANCE hInstance);
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 
 int APIENTRY wWinMain(
@@ -45,16 +40,35 @@ int APIENTRY wWinMain(
 	if (FAILED(CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE))) {
 		return FALSE;
 	}
+	
+	LoadStringW(hInst, IDC_FASTSWITCHAUDIO, windowClassName, maxLoadString);
+	LoadStringW(hInst, IDS_APP_TITLE, windowTitle, maxLoadString);
 
-	const INITCOMMONCONTROLSEX commonControlsInitData {
-		.dwSize = sizeof(INITCOMMONCONTROLSEX),
-		.dwICC = ICC_LISTVIEW_CLASSES
+	if (auto maybeError = audioDeviceManager.refresh(); maybeError.has_value()) {
+
+		Audio::Error error = maybeError.value();
+		MessageBoxW(nullptr, error.explanation.c_str(), L"Fatal Error", MB_OK | MB_ICONERROR);
+
+		return FALSE;
+
+	}
+
+	const WNDCLASSEXW windowClass {
+		.cbSize = sizeof(WNDCLASSEX),
+		.style = CS_HREDRAW | CS_VREDRAW,
+		.lpfnWndProc = WndProc,
+		.cbClsExtra = 0,
+		.cbWndExtra = 0,
+		.hInstance = hInstance,
+		.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_FASTSWITCHAUDIO)),
+		.hCursor = LoadCursor(nullptr, IDC_ARROW),
+		.hbrBackground = (HBRUSH)(COLOR_WINDOWFRAME),
+		.lpszMenuName = MAKEINTRESOURCEW(IDC_FASTSWITCHAUDIO),
+		.lpszClassName = windowClassName,
+		.hIconSm = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_SMALL)),
 	};
 
-	InitCommonControlsEx(&commonControlsInitData);
-	
-	loadStrings(hInst);
-	registerWindowClass(hInst);
+	RegisterClassExW(&windowClass);
 	
 	mainWindow = CreateWindowW(
 		windowClassName,
@@ -68,69 +82,6 @@ int APIENTRY wWinMain(
 
 	ShowWindow(mainWindow, showWindowMode);
 	UpdateWindow(mainWindow);
-
-	if (FAILED(mmDeviceEnumerator.CoCreateInstance(__uuidof(MMDeviceEnumerator)))) {
-		MessageBoxW(mainWindow, L"Failed to get an audio device enumerator instance!", L"Fatal Error", MB_OK | MB_ICONERROR);
-		return FALSE;
-	}
-	
-	if (FAILED(mmDeviceEnumerator->EnumAudioEndpoints(eRender, DEVICE_STATE_ACTIVE, &audioOutputs))) {
-		MessageBoxW(mainWindow, L"Failed to retrieve list of audio output devices", L"Fatal Error", MB_OK | MB_ICONERROR);
-		return FALSE;
-	}
-	
-	std::uint32_t outputCount;
-
-	if (FAILED(audioOutputs->GetCount(&outputCount))) {
-		MessageBoxW(mainWindow, L"Failed to count # of audio output devices.", L"Fatal Error", MB_OK | MB_ICONERROR);
-		return FALSE;
-	}
-
-	RECT clientRect;
-	GetClientRect(mainWindow, &clientRect);
-
-	listView = CreateWindowW(WC_LISTVIEW, L"",
-		WS_CHILD | LVS_LIST | LVS_SINGLESEL,
-		0, 0,
-		clientRect.right - clientRect.left,
-		clientRect.bottom - clientRect.top,
-		mainWindow,
-		nullptr, hInst, nullptr
-	);
-
-	//SetWindowTheme(listView, L"Explorer", nullptr);
-
-	for (std::uint32_t i = 0; i < outputCount; i ++) {
-		
-		CComPtr<IMMDevice> device;
-		LPWSTR id;
-		
-		if (FAILED(audioOutputs->Item(i, &device))) {
-			// TODO!
-			return FALSE;
-		}
-
-		if (FAILED(device->GetId(&id))) {
-			// TODO!
-			return FALSE;
-		}
-
-		const LVITEM listItem {
-			.mask = LVIF_TEXT,
-			.iItem = static_cast<int>(i),
-			.pszText = id,
-		};
-
-		if (ListView_InsertItem(listView, &listItem) == -1) {
-			return FALSE;
-		}
-
-		CoTaskMemFree(id);
-
-	}
-
-	ShowWindow(listView, showWindowMode);
-	UpdateWindow(listView);
 
 	HACCEL acceleratorTable = LoadAccelerators(hInst, MAKEINTRESOURCE(IDC_FASTSWITCHAUDIO));
 	MSG msg;
@@ -146,36 +97,6 @@ int APIENTRY wWinMain(
 	return (int) msg.wParam;
 }
 
-void loadStrings(HINSTANCE hInstance) {
-	LoadStringW(hInst, IDS_APP_TITLE, windowTitle, maxLoadString);
-	LoadStringW(hInst, IDC_FASTSWITCHAUDIO, windowClassName, maxLoadString);
-}
-
-/**
- * @brief Registers our window's class.
- * @param hInstance
- * @returns Unique identifier of the class.
- */
-ATOM registerWindowClass(HINSTANCE hInstance) {
-
-	WNDCLASSEXW windowClass {
-		.cbSize = sizeof(WNDCLASSEX),
-		.style = CS_HREDRAW | CS_VREDRAW,
-		.lpfnWndProc = WndProc,
-		.cbClsExtra = 0,
-		.cbWndExtra = 0,
-		.hInstance = hInstance,
-		.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_FASTSWITCHAUDIO)),
-		.hCursor = LoadCursor(nullptr, IDC_ARROW),
-		.hbrBackground = (HBRUSH)(COLOR_WINDOWFRAME),
-		.lpszMenuName = MAKEINTRESOURCEW(IDC_FASTSWITCHAUDIO),
-		.lpszClassName = windowClassName,
-		.hIconSm = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_SMALL)),
-	};
-
-	return RegisterClassExW(&windowClass);
-}
-
 //
 //  FUNCTION: WndProc(HWND, UINT, WPARAM, LPARAM)
 //
@@ -188,7 +109,25 @@ ATOM registerWindowClass(HINSTANCE hInstance) {
 //
 LRESULT CALLBACK WndProc(HWND window, UINT message, WPARAM wParam, LPARAM lParam) {
 
+	static ListView* listView;
+
 	switch (message) {
+
+		case WM_CREATE: {
+			
+			listView = new ListView(window);
+			listView->updateSize();
+
+			std::int32_t i = 0;
+
+			for (Audio::Device device : audioDeviceManager.devices) {
+				listView->insert(i, device.getName());
+				i++;
+			}
+
+			break;
+
+		}
 
 		case WM_COMMAND: {
 
@@ -218,7 +157,7 @@ LRESULT CALLBACK WndProc(HWND window, UINT message, WPARAM wParam, LPARAM lParam
 
 		case WM_NOTIFY: {
 
-			NMHDR* info = reinterpret_cast<NMHDR*>(lParam);
+			/*NMHDR* info = reinterpret_cast<NMHDR*>(lParam);
 			
 			if (info->hwndFrom == listView) {
 				switch (info->code) {
@@ -248,24 +187,14 @@ LRESULT CALLBACK WndProc(HWND window, UINT message, WPARAM wParam, LPARAM lParam
 					}
 
 				}
-			}
+			}*/
 
 			break;
 
 		}
 
 		case WM_SIZE: {
-			
-			RECT clientRect;
-			GetClientRect(mainWindow, &clientRect);
-
-			SetWindowPos(listView, nullptr,
-				0, 0,
-				clientRect.right - clientRect.left,
-				clientRect.bottom - clientRect.top,
-				SWP_NOACTIVATE
-			);
-
+			listView->updateSize();
 			break;
 
 		}
@@ -281,7 +210,10 @@ LRESULT CALLBACK WndProc(HWND window, UINT message, WPARAM wParam, LPARAM lParam
 		}
 
 		case WM_DESTROY: {
+
+			delete listView;
 			PostQuitMessage(0);
+
 			break;
 		}
 
