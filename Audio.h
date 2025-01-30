@@ -7,13 +7,16 @@
 #include <string>
 #include <vector>
 
-namespace Audio {
+namespace Audio
+{
 
-	struct Error {
+	struct Error
+	{
 		std::wstring explanation;
 	};
 
-	class Device {
+	class Device
+	{
 
 	public:
 		Device(IMMDevice* mmDevice, IPropertyStore* propertyStore);
@@ -27,7 +30,8 @@ namespace Audio {
 
 	};
 
-	class DeviceManager {
+	class DeviceManager
+	{
 
 	public:
 

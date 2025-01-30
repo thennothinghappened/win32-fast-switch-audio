@@ -2,7 +2,7 @@
 #include <CommCtrl.h>
 #include <uxtheme.h>
 
-const INITCOMMONCONTROLSEX commonControlsInitData {
+const INITCOMMONCONTROLSEX commonControlsInitData{
 	.dwSize = sizeof(INITCOMMONCONTROLSEX),
 	.dwICC = ICC_LISTVIEW_CLASSES
 };
@@ -12,17 +12,19 @@ ListView::ListView(const HWND parent) : listView(CreateWindowW(WC_LISTVIEW, L"",
 	0, 0,
 	0, 0,
 	parent, nullptr, GetModuleHandleW(nullptr), nullptr
-)) {
+))
+{
 	InitCommonControlsEx(&commonControlsInitData);
 	updateSize();
 }
 
-ListView::~ListView() {
+ListView::~ListView()
+{
 	DestroyWindow(listView);
 }
 
-void ListView::updateSize() {
-
+void ListView::updateSize()
+{
 	RECT clientRect;
 	GetClientRect(GetParent(listView), &clientRect);
 
@@ -32,16 +34,16 @@ void ListView::updateSize() {
 		clientRect.bottom - clientRect.top,
 		true
 	);
-
 }
 
-void ListView::clear() {
+void ListView::clear()
+{
 	ListView_DeleteAllItems(listView);
 }
 
-void ListView::insert(std::int32_t index, std::wstring item) {
-
-	const LVITEM listItem {
+void ListView::insert(std::int32_t index, std::wstring item)
+{
+	const LVITEM listItem{
 		.mask = LVIF_TEXT,
 		.iItem = index,
 		// FIXME: I actually have no idea if this is invalid - the docs are not clear on what happens
@@ -50,5 +52,4 @@ void ListView::insert(std::int32_t index, std::wstring item) {
 	};
 
 	ListView_InsertItem(listView, &listItem);
-
 }

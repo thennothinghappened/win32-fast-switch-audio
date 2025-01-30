@@ -4,7 +4,8 @@
 #include <vector>
 #include <string>
 
-class ListView {
+class ListView
+{
 
 public:
 	ListView(const HWND parent);
@@ -16,5 +17,5 @@ public:
 
 private:
 	const HWND listView;
-	
+
 };

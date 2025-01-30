@@ -31,29 +31,30 @@ LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 int APIENTRY wWinMain(
 	_In_ HINSTANCE hInstance,
 	_In_opt_ HINSTANCE __prevInst,
-	_In_ LPWSTR    lpCmdLine,
-	_In_ int       showWindowMode
-) {
-
+	_In_ LPWSTR lpCmdLine,
+	_In_ int showWindowMode
+)
+{
 	hInst = hInstance;
 
-	if (FAILED(CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE))) {
+	if (FAILED(CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE)))
+	{
 		return FALSE;
 	}
-	
+
 	LoadStringW(hInst, IDC_FASTSWITCHAUDIO, windowClassName, maxLoadString);
 	LoadStringW(hInst, IDS_APP_TITLE, windowTitle, maxLoadString);
 
-	if (auto maybeError = audioDeviceManager.refresh(); maybeError.has_value()) {
-
+	if (auto maybeError = audioDeviceManager.refresh(); maybeError.has_value())
+	{
 		Audio::Error error = maybeError.value();
 		MessageBoxW(nullptr, error.explanation.c_str(), L"Fatal Error", MB_OK | MB_ICONERROR);
 
 		return FALSE;
-
 	}
 
-	const WNDCLASSEXW windowClass {
+	const WNDCLASSEXW windowClass
+	{
 		.cbSize = sizeof(WNDCLASSEX),
 		.style = CS_HREDRAW | CS_VREDRAW,
 		.lpfnWndProc = WndProc,
@@ -69,14 +70,15 @@ int APIENTRY wWinMain(
 	};
 
 	RegisterClassExW(&windowClass);
-	
+
 	mainWindow = CreateWindowW(
 		windowClassName,
 		windowTitle, WS_OVERLAPPEDWINDOW,
 		CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInst, nullptr
 	);
 
-	if (mainWindow == nullptr) {
+	if (mainWindow == nullptr)
+	{
 		return FALSE;
 	}
 
@@ -87,14 +89,16 @@ int APIENTRY wWinMain(
 	MSG msg;
 
 	// Main message loop:
-	while (GetMessageW(&msg, nullptr, 0, 0)) {
-		if (!TranslateAcceleratorW(msg.hwnd, acceleratorTable, &msg)) {
+	while (GetMessageW(&msg, nullptr, 0, 0))
+	{
+		if (!TranslateAcceleratorW(msg.hwnd, acceleratorTable, &msg))
+		{
 			TranslateMessage(&msg);
 			DispatchMessageW(&msg);
 		}
 	}
 
-	return (int) msg.wParam;
+	return (int)msg.wParam;
 }
 
 //
@@ -107,63 +111,67 @@ int APIENTRY wWinMain(
 //  WM_DESTROY  - post a quit message and return
 //
 //
-LRESULT CALLBACK WndProc(HWND window, UINT message, WPARAM wParam, LPARAM lParam) {
-
+LRESULT CALLBACK WndProc(HWND window, UINT message, WPARAM wParam, LPARAM lParam)
+{
 	static ListView* listView;
 
-	switch (message) {
+	switch (message)
+	{
 
-		case WM_CREATE: {
-			
+		case WM_CREATE:
+		{
 			listView = new ListView(window);
 			listView->updateSize();
 
 			std::int32_t i = 0;
 
-			for (Audio::Device device : audioDeviceManager.devices) {
+			for (Audio::Device device : audioDeviceManager.devices)
+			{
 				listView->insert(i, device.getName());
 				i++;
 			}
 
 			break;
-
 		}
 
-		case WM_COMMAND: {
-
+		case WM_COMMAND:
+		{
 			int wmId = LOWORD(wParam);
 
 			// Parse the menu selections:
-			switch (wmId) {
+			switch (wmId)
+			{
 
-				case IDM_ABOUT: {
+				case IDM_ABOUT:
+				{
 					DialogBoxW(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), window, About);
 					break;
 				}
 
-				case IDM_EXIT: {
+				case IDM_EXIT:
+				{
 					DestroyWindow(window);
 					break;
 				}
 
-				default: {
+				default:
+				{
 					return DefWindowProcW(window, message, wParam, lParam);
 				}
 
 			}
-			
 			break;
 		}
 
-		case WM_NOTIFY: {
-
+		case WM_NOTIFY:
+		{
 			/*NMHDR* info = reinterpret_cast<NMHDR*>(lParam);
-			
+
 			if (info->hwndFrom == listView) {
 				switch (info->code) {
 
 					case NM_DBLCLK: {
-					
+
 						std::int32_t itemIndex = ListView_GetNextItem(listView, -1, LVNI_SELECTED);
 
 						if (itemIndex < 0) {
@@ -171,7 +179,7 @@ LRESULT CALLBACK WndProc(HWND window, UINT message, WPARAM wParam, LPARAM lParam
 						}
 
 						wchar_t buffer[64];
-						
+
 						LVITEM item {
 							.mask = LVIF_TEXT,
 							.iItem = itemIndex,
@@ -182,24 +190,23 @@ LRESULT CALLBACK WndProc(HWND window, UINT message, WPARAM wParam, LPARAM lParam
 						ListView_GetItem(listView, &item);
 
 						MessageBoxW(mainWindow, buffer, L"Chosen item", MB_OK | MB_ICONINFORMATION);
-						
+
 						break;
 					}
 
 				}
 			}*/
-
 			break;
-
 		}
 
-		case WM_SIZE: {
+		case WM_SIZE:
+		{
 			listView->updateSize();
 			break;
 		}
-		
-		case WM_PAINT: {
 
+		case WM_PAINT:
+		{
 			PAINTSTRUCT ps;
 			HDC hdc = BeginPaint(window, &ps);
 
@@ -208,15 +215,16 @@ LRESULT CALLBACK WndProc(HWND window, UINT message, WPARAM wParam, LPARAM lParam
 			break;
 		}
 
-		case WM_DESTROY: {
-
+		case WM_DESTROY:
+		{
 			delete listView;
 			PostQuitMessage(0);
 
 			break;
 		}
 
-		default: {
+		default:
+		{
 			return DefWindowProcW(window, message, wParam, lParam);
 		}
 
