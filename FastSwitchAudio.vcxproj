@@ -132,16 +132,17 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="AboutDialog.h" />
-    <ClInclude Include="Audio.h" />
+    <ClInclude Include="Audio\Audio.h" />
     <ClInclude Include="FastSwitchAudio.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="ListView.h" />
+    <ClInclude Include="PolicyConfig.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AboutDialog.cpp" />
-    <ClCompile Include="Audio.cpp" />
+    <ClCompile Include="Audio\Audio.cpp" />
     <ClCompile Include="FastSwitchAudio.cpp" />
     <ClCompile Include="ListView.cpp" />
   </ItemGroup>

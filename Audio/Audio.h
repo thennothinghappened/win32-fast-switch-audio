@@ -1,12 +1,13 @@
 #pragma once
 
-#include "framework.h"
+#include "../framework.h"
 #include <mmdeviceapi.h>
 #include <atlbase.h>
 #include <optional>
 #include <string>
 #include <format>
 #include <vector>
+#include "../PolicyConfig.h"
 
 namespace Audio
 {
@@ -17,18 +18,21 @@ namespace Audio
 
 	class Device
 	{
-
 	public:
-		Device(IMMDevice* mmDevice, IPropertyStore* propertyStore);
-		Device(Device&& device) noexcept;
-		~Device();
+		virtual const std::wstring getName() = 0;
+	};
 
-		std::wstring getName();
+	class DeviceImpl : public Device
+	{
+	public:
+		DeviceImpl(IMMDevice* mmDevice, IPropertyStore* propertyStore);
+		DeviceImpl(DeviceImpl&& device) noexcept;
+		~DeviceImpl();
 
-	private:
+		const std::wstring getName();
+
 		IMMDevice* mmDevice;
 		IPropertyStore* propertyStore;
-
 	};
 
 	class DeviceManager
@@ -41,7 +45,9 @@ namespace Audio
 		[[nodiscard]]
 		std::optional<Error> refresh();
 
-		std::vector<Device> devices;
+		std::vector<DeviceImpl> devices;
+
+		const Device& getDefault() const;
 
 	private:
 		IMMDeviceEnumerator* deviceEnumerator = nullptr;

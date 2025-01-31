@@ -8,7 +8,7 @@
 #include <vector>
 #include <ranges>
 #include "AboutDialog.h"
-#include "Audio.h"
+#include "Audio/Audio.h"
 #include "ListView.h"
 #pragma comment(lib, "comctl32")
 #pragma comment(lib, "uxtheme")

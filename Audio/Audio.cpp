@@ -53,7 +53,7 @@ namespace Audio
 				return Error{ std::format(L"Failed to open property store for device at index {}", i) };
 			}
 
-			devices.emplace_back(Device(mmDevice, propertyStore));
+			devices.emplace_back(DeviceImpl(mmDevice, propertyStore));
 
 			// Release our references, since the device adds one.
 			mmDevice->Release();
@@ -65,26 +65,32 @@ namespace Audio
 
 	}
 
-	Device::Device(IMMDevice* mmDevice, IPropertyStore* propertyStore)
+	const Device& DeviceManager::getDefault() const
+	{
+		throw "TODO";
+		//deviceEnumerator->GetDefaultAudioEndpoint()
+	}
+
+	DeviceImpl::DeviceImpl(IMMDevice* mmDevice, IPropertyStore* propertyStore)
 		: mmDevice(mmDevice), propertyStore(propertyStore)
 	{
 		mmDevice->AddRef();
 		propertyStore->AddRef();
 	}
 
-	Device::Device(Device&& device) noexcept : mmDevice(device.mmDevice), propertyStore(device.propertyStore)
+	DeviceImpl::DeviceImpl(DeviceImpl&& device) noexcept : mmDevice(device.mmDevice), propertyStore(device.propertyStore)
 	{
 		mmDevice->AddRef();
 		propertyStore->AddRef();
 	}
 
-	Device::~Device()
+	DeviceImpl::~DeviceImpl()
 	{
 		propertyStore->Release();
 		mmDevice->Release();
 	}
 
-	std::wstring Device::getName()
+	const std::wstring DeviceImpl::getName()
 	{
 
 		PROPVARIANT shortName;
