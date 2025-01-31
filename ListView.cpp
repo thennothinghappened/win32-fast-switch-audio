@@ -66,7 +66,6 @@ std::optional<std::int32_t> ListView::handleNotification(const NMHDR* notificati
 
 		case NM_CLICK:
 		{
-
 			std::int32_t itemIndex = ListView_GetNextItem(listView, -1, LVNI_SELECTED);
 
 			if (itemIndex < 0)
@@ -75,21 +74,6 @@ std::optional<std::int32_t> ListView::handleNotification(const NMHDR* notificati
 			}
 
 			return itemIndex;
-
-			//wchar_t buffer[64];
-
-			//LVITEM item{
-			//	.mask = LVIF_TEXT,
-			//	.iItem = itemIndex,
-			//	.pszText = buffer,
-			//	.cchTextMax = sizeof(buffer) / sizeof(wchar_t)
-			//};
-
-			//ListView_GetItem(listView, &item);
-
-			//MessageBoxW(nullptr, buffer, L"Chosen item", MB_OK | MB_ICONINFORMATION);
-
-			break;
 		}
 
 	}
