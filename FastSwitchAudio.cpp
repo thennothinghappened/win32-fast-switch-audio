@@ -167,8 +167,11 @@ LRESULT CALLBACK WndProc(HWND window, UINT message, WPARAM wParam, LPARAM lParam
 		{
 			const NMHDR* notification = reinterpret_cast<NMHDR*>(lParam);
 			
-			if (listView->handleNotification(notification))
+			if (auto maybeItemIndex = listView->handleNotification(notification); maybeItemIndex.has_value())
 			{
+				std::int32_t itemIndex = maybeItemIndex.value();
+				audioDeviceManager.devices[itemIndex].setAsDefault();
+
 				break;
 			}
 			

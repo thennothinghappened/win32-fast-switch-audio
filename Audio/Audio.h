@@ -20,6 +20,7 @@ namespace Audio
 	{
 	public:
 		virtual const std::wstring getName() = 0;
+		virtual void setAsDefault() = 0;
 	};
 
 	class DeviceImpl : public Device
@@ -30,6 +31,7 @@ namespace Audio
 		~DeviceImpl();
 
 		const std::wstring getName();
+		void setAsDefault();
 
 		IMMDevice* mmDevice;
 		IPropertyStore* propertyStore;

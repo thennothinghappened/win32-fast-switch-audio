@@ -54,11 +54,11 @@ void ListView::insert(std::int32_t index, std::wstring item)
 	ListView_InsertItem(listView, &listItem);
 }
 
-bool ListView::handleNotification(const NMHDR* notification) const
+std::optional<std::int32_t> ListView::handleNotification(const NMHDR* notification) const
 {
 	if (notification->hwndFrom != listView)
 	{
-		return false;
+		return std::nullopt;
 	}
 
 	switch (notification->code)
@@ -74,23 +74,25 @@ bool ListView::handleNotification(const NMHDR* notification) const
 				break;
 			}
 
-			wchar_t buffer[64];
+			return itemIndex;
 
-			LVITEM item{
-				.mask = LVIF_TEXT,
-				.iItem = itemIndex,
-				.pszText = buffer,
-				.cchTextMax = sizeof(buffer) / sizeof(wchar_t)
-			};
+			//wchar_t buffer[64];
 
-			ListView_GetItem(listView, &item);
+			//LVITEM item{
+			//	.mask = LVIF_TEXT,
+			//	.iItem = itemIndex,
+			//	.pszText = buffer,
+			//	.cchTextMax = sizeof(buffer) / sizeof(wchar_t)
+			//};
 
-			MessageBoxW(nullptr, buffer, L"Chosen item", MB_OK | MB_ICONINFORMATION);
+			//ListView_GetItem(listView, &item);
+
+			//MessageBoxW(nullptr, buffer, L"Chosen item", MB_OK | MB_ICONINFORMATION);
 
 			break;
 		}
 
 	}
 
-	return true;
+	return std::nullopt;
 }

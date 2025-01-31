@@ -112,4 +112,16 @@ namespace Audio
 
 	}
 
+	void DeviceImpl::setAsDefault()
+	{
+		CComPtr<IPolicyConfig> policyConfig;
+		policyConfig.CoCreateInstance(__uuidof(CPolicyConfigClient), nullptr, CLSCTX_ALL); // TODO: error handling
+
+		LPWSTR id;
+		mmDevice->GetId(&id);
+
+		policyConfig->SetDefaultEndpoint(id, eConsole);
+		CoTaskMemFree(id);
+	}
+
 };
