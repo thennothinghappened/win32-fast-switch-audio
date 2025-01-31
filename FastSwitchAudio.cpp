@@ -11,8 +11,17 @@
 #include "Audio/Audio.h"
 #include "Audio/DeviceManagerImpl.h"
 #include "ListView.h"
+
 #pragma comment(lib, "comctl32")
 #pragma comment(lib, "uxtheme")
+
+#pragma comment(linker, "\"/manifestdependency:type='win32'	\
+	name='Microsoft.Windows.Common-Controls'				\
+	version='6.0.0.0'										\
+	processorArchitecture='*'								\
+	publicKeyToken='6595b64144ccf1df'						\
+	language='*'											\
+\"")
 
 /**
  * @brief Maximum size we're allocating for strings when using `LoadStringW`.
@@ -114,7 +123,7 @@ int APIENTRY wWinMain(
 //
 LRESULT CALLBACK WndProc(HWND window, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	static ListView* listView;
+	static ListView* listView = nullptr;
 
 	switch (message)
 	{
@@ -166,6 +175,11 @@ LRESULT CALLBACK WndProc(HWND window, UINT message, WPARAM wParam, LPARAM lParam
 		{
 			const NMHDR* notification = reinterpret_cast<NMHDR*>(lParam);
 			
+			if (listView == nullptr)
+			{
+				break;
+			}
+
 			if (auto maybeItemIndex = listView->handleNotification(notification); maybeItemIndex.has_value())
 			{
 				std::int32_t itemIndex = maybeItemIndex.value();
@@ -195,9 +209,12 @@ LRESULT CALLBACK WndProc(HWND window, UINT message, WPARAM wParam, LPARAM lParam
 
 		case WM_DESTROY:
 		{
-			delete listView;
-			PostQuitMessage(0);
+			if (listView != nullptr)
+			{
+				delete listView;
+			}
 
+			PostQuitMessage(0);
 			break;
 		}
 
