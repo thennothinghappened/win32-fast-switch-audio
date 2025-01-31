@@ -5,11 +5,11 @@
 #include <atlbase.h>
 #include <optional>
 #include <string>
+#include <format>
 #include <vector>
 
 namespace Audio
 {
-
 	struct Error
 	{
 		std::wstring explanation;
@@ -20,6 +20,7 @@ namespace Audio
 
 	public:
 		Device(IMMDevice* mmDevice, IPropertyStore* propertyStore);
+		Device(Device&& device) noexcept;
 		~Device();
 
 		std::wstring getName();
@@ -43,7 +44,7 @@ namespace Audio
 		std::vector<Device> devices;
 
 	private:
-		IMMDeviceEnumerator* deviceEnumerator;
+		IMMDeviceEnumerator* deviceEnumerator = nullptr;
 
 	};
 

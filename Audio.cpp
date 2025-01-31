@@ -1,5 +1,6 @@
 #include "Audio.h"
 #include <format>
+#include <exception>
 #include <functiondiscoverykeys_devpkey.h>
 
 namespace Audio
@@ -9,7 +10,6 @@ namespace Audio
 
 	std::optional<Error> DeviceManager::refresh()
 	{
-
 		devices.clear();
 
 		if (deviceEnumerator == nullptr)
@@ -49,10 +49,15 @@ namespace Audio
 
 			if (FAILED(mmDevice->OpenPropertyStore(STGM_READ, &propertyStore)))
 			{
+				mmDevice->Release();
 				return Error{ std::format(L"Failed to open property store for device at index {}", i) };
 			}
 
-			devices.push_back(Device(mmDevice, propertyStore));
+			devices.emplace_back(Device(mmDevice, propertyStore));
+
+			// Release our references, since the device adds one.
+			mmDevice->Release();
+			propertyStore->Release();
 
 		}
 
@@ -62,6 +67,12 @@ namespace Audio
 
 	Device::Device(IMMDevice* mmDevice, IPropertyStore* propertyStore)
 		: mmDevice(mmDevice), propertyStore(propertyStore)
+	{
+		mmDevice->AddRef();
+		propertyStore->AddRef();
+	}
+
+	Device::Device(Device&& device) noexcept : mmDevice(device.mmDevice), propertyStore(device.propertyStore)
 	{
 		mmDevice->AddRef();
 		propertyStore->AddRef();

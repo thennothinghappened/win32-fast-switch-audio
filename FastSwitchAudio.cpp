@@ -125,7 +125,7 @@ LRESULT CALLBACK WndProc(HWND window, UINT message, WPARAM wParam, LPARAM lParam
 
 			std::int32_t i = 0;
 
-			for (Audio::Device device : audioDeviceManager.devices)
+			for (Audio::Device& device : audioDeviceManager.devices)
 			{
 				listView->insert(i, device.getName());
 				i++;
