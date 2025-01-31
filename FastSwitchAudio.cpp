@@ -7,7 +7,8 @@
 #include <format>
 #include <vector>
 #include <ranges>
-#include "AboutDialog.h"
+#include <windowsx.h>
+#include <shellapi.h>
 #include "Audio/Audio.h"
 #include "Audio/DeviceManagerImpl.h"
 #include "ListView.h"
@@ -28,13 +29,16 @@
  */
 constexpr std::uint32_t maxLoadString = 128;
 
+enum class Notification : std::uint32_t
+{
+	ToggleTrayIcon = (WM_USER + 0x100)
+};
+
 Audio::DeviceManagerImpl audioDeviceManager;
 
 HINSTANCE hInst;
-HWND mainWindow;
-
+HWND trayWindow;
 WCHAR windowClassName[maxLoadString];
-WCHAR windowTitle[maxLoadString];                  // The title bar text
 
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 
@@ -53,7 +57,6 @@ int APIENTRY wWinMain(
 	}
 
 	LoadStringW(hInst, IDC_FASTSWITCHAUDIO, windowClassName, maxLoadString);
-	LoadStringW(hInst, IDS_APP_TITLE, windowTitle, maxLoadString);
 
 	if (auto maybeError = audioDeviceManager.refresh(); maybeError.has_value())
 	{
@@ -66,39 +69,45 @@ int APIENTRY wWinMain(
 	const WNDCLASSEXW windowClass
 	{
 		.cbSize = sizeof(WNDCLASSEX),
-		.style = CS_HREDRAW | CS_VREDRAW,
 		.lpfnWndProc = WndProc,
-		.cbClsExtra = 0,
-		.cbWndExtra = 0,
-		.hInstance = hInstance,
-		.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_FASTSWITCHAUDIO)),
-		.hCursor = LoadCursor(nullptr, IDC_ARROW),
+		.hInstance = hInst,
+		.hIcon = LoadIconW(hInst, MAKEINTRESOURCE(IDI_FASTSWITCHAUDIO)),
 		.hbrBackground = (HBRUSH)(COLOR_WINDOWFRAME),
 		.lpszMenuName = MAKEINTRESOURCEW(IDC_FASTSWITCHAUDIO),
 		.lpszClassName = windowClassName,
-		.hIconSm = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_SMALL)),
+		.hIconSm = LoadIconW(hInst, MAKEINTRESOURCE(IDI_SMALL)),
 	};
 
 	RegisterClassExW(&windowClass);
 
-	mainWindow = CreateWindowW(
-		windowClassName,
-		windowTitle, WS_OVERLAPPEDWINDOW,
-		CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInst, nullptr
+	trayWindow = CreateWindowExW(WS_EX_TOPMOST | WS_EX_TOOLWINDOW,
+		windowClassName, L"", WS_POPUP,
+		0, 0, 0, 0, nullptr, nullptr, hInst, nullptr
 	);
 
-	if (mainWindow == nullptr)
+	if (trayWindow == nullptr)
 	{
 		return FALSE;
 	}
 
-	ShowWindow(mainWindow, showWindowMode);
-	UpdateWindow(mainWindow);
+	NOTIFYICONDATA trayIconData{
+		.cbSize = sizeof(NOTIFYICONDATA),
+		.hWnd = trayWindow,
+		.uID = 1,
+		.uFlags = NIF_MESSAGE | NIF_ICON,
+		.uCallbackMessage = static_cast<std::uint32_t>(Notification::ToggleTrayIcon),
+		.hIcon = LoadIconW(hInst, MAKEINTRESOURCE(IDI_SMALL)),
+		.uVersion = NOTIFYICON_VERSION_4
+	};
+	
+	if (Shell_NotifyIcon(NIM_ADD, &trayIconData))
+	{
+		Shell_NotifyIcon(NIM_SETVERSION, &trayIconData);
+	}
 
 	HACCEL acceleratorTable = LoadAccelerators(hInst, MAKEINTRESOURCE(IDC_FASTSWITCHAUDIO));
 	MSG msg;
 
-	// Main message loop:
 	while (GetMessageW(&msg, nullptr, 0, 0))
 	{
 		if (!TranslateAcceleratorW(msg.hwnd, acceleratorTable, &msg))
@@ -111,16 +120,6 @@ int APIENTRY wWinMain(
 	return (int)msg.wParam;
 }
 
-//
-//  FUNCTION: WndProc(HWND, UINT, WPARAM, LPARAM)
-//
-//  PURPOSE: Processes messages for the main window.
-//
-//  WM_COMMAND  - process the application menu
-//  WM_PAINT    - Paint the main window
-//  WM_DESTROY  - post a quit message and return
-//
-//
 LRESULT CALLBACK WndProc(HWND window, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	static ListView* listView = nullptr;
@@ -133,7 +132,7 @@ LRESULT CALLBACK WndProc(HWND window, UINT message, WPARAM wParam, LPARAM lParam
 			listView = new ListView(window);
 			listView->updateSize();
 
-			for (std::size_t i = 0; i < audioDeviceManager.count(); i++)
+			for (std::int32_t i = 0; i < audioDeviceManager.count(); i++)
 			{
 				const Audio::Device& device = audioDeviceManager[i];
 				listView->insert(i, device.getName());
@@ -142,31 +141,40 @@ LRESULT CALLBACK WndProc(HWND window, UINT message, WPARAM wParam, LPARAM lParam
 			break;
 		}
 
-		case WM_COMMAND:
+		case static_cast<std::uint32_t>(Notification::ToggleTrayIcon):
 		{
-			int wmId = LOWORD(wParam);
-
-			// Parse the menu selections:
-			switch (wmId)
+			switch (LOWORD(lParam))
 			{
-
-				case IDM_ABOUT:
+				case WM_CONTEXTMENU:
 				{
-					DialogBoxW(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), window, About);
+					if (IsWindowVisible(trayWindow))
+					{
+						ShowWindow(trayWindow, SW_HIDE);
+						break;
+					}
+
+					POINT cursorPos;
+					GetCursorPos(&cursorPos);
+
+					MoveWindow(trayWindow, cursorPos.x, cursorPos.y - 80, 200, 80, true);
+					ShowWindow(trayWindow, SW_SHOW);
+
+					//HMENU menu = CreatePopupMenu();
+
+					//TrackPopupMenu(menu, TPM_LEFTALIGN | TPM_LEFTBUTTON | TPM_RETURNCMD, 30, 30, 0, trayWindow, nullptr);
+					
 					break;
 				}
+			}
 
-				case IDM_EXIT:
-				{
-					DestroyWindow(window);
-					break;
-				}
+			return DefWindowProcW(window, message, wParam, lParam);
+		}
 
-				default:
-				{
-					return DefWindowProcW(window, message, wParam, lParam);
-				}
-
+		case WM_KILLFOCUS:
+		{
+			if (window == trayWindow)
+			{
+				SetFocus(nullptr);
 			}
 			break;
 		}
@@ -177,6 +185,7 @@ LRESULT CALLBACK WndProc(HWND window, UINT message, WPARAM wParam, LPARAM lParam
 			
 			if (listView == nullptr)
 			{
+				return DefWindowProcW(window, message, wParam, lParam);
 				break;
 			}
 
@@ -185,36 +194,20 @@ LRESULT CALLBACK WndProc(HWND window, UINT message, WPARAM wParam, LPARAM lParam
 				std::int32_t itemIndex = maybeItemIndex.value();
 				audioDeviceManager[itemIndex].setAsDefault();
 
+				ShowWindow(trayWindow, SW_HIDE);
+
 				break;
 			}
 			
-			break;
+			return DefWindowProcW(window, message, wParam, lParam);
 		}
 
 		case WM_SIZE:
 		{
-			listView->updateSize();
-			break;
-		}
-
-		case WM_PAINT:
-		{
-			PAINTSTRUCT ps;
-			HDC hdc = BeginPaint(window, &ps);
-
-			EndPaint(window, &ps);
-
-			break;
-		}
-
-		case WM_DESTROY:
-		{
 			if (listView != nullptr)
 			{
-				delete listView;
+				listView->updateSize();
 			}
-
-			PostQuitMessage(0);
 			break;
 		}
 
