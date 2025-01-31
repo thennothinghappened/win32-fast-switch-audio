@@ -53,3 +53,44 @@ void ListView::insert(std::int32_t index, std::wstring item)
 
 	ListView_InsertItem(listView, &listItem);
 }
+
+bool ListView::handleNotification(const NMHDR* notification) const
+{
+	if (notification->hwndFrom != listView)
+	{
+		return false;
+	}
+
+	switch (notification->code)
+	{
+
+		case NM_DBLCLK:
+		{
+
+			std::int32_t itemIndex = ListView_GetNextItem(listView, -1, LVNI_SELECTED);
+
+			if (itemIndex < 0)
+			{
+				break;
+			}
+
+			wchar_t buffer[64];
+
+			LVITEM item{
+				.mask = LVIF_TEXT,
+				.iItem = itemIndex,
+				.pszText = buffer,
+				.cchTextMax = sizeof(buffer) / sizeof(wchar_t)
+			};
+
+			ListView_GetItem(listView, &item);
+
+			MessageBoxW(nullptr, buffer, L"Chosen item", MB_OK | MB_ICONINFORMATION);
+
+			break;
+		}
+
+	}
+
+	return true;
+}

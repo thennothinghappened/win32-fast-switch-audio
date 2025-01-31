@@ -165,37 +165,13 @@ LRESULT CALLBACK WndProc(HWND window, UINT message, WPARAM wParam, LPARAM lParam
 
 		case WM_NOTIFY:
 		{
-			/*NMHDR* info = reinterpret_cast<NMHDR*>(lParam);
-
-			if (info->hwndFrom == listView) {
-				switch (info->code) {
-
-					case NM_DBLCLK: {
-
-						std::int32_t itemIndex = ListView_GetNextItem(listView, -1, LVNI_SELECTED);
-
-						if (itemIndex < 0) {
-							break;
-						}
-
-						wchar_t buffer[64];
-
-						LVITEM item {
-							.mask = LVIF_TEXT,
-							.iItem = itemIndex,
-							.pszText = buffer,
-							.cchTextMax = sizeof(buffer) / sizeof(wchar_t)
-						};
-
-						ListView_GetItem(listView, &item);
-
-						MessageBoxW(mainWindow, buffer, L"Chosen item", MB_OK | MB_ICONINFORMATION);
-
-						break;
-					}
-
-				}
-			}*/
+			const NMHDR* notification = reinterpret_cast<NMHDR*>(lParam);
+			
+			if (listView->handleNotification(notification))
+			{
+				break;
+			}
+			
 			break;
 		}
 
