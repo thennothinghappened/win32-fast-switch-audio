@@ -9,6 +9,7 @@
 #include <ranges>
 #include "AboutDialog.h"
 #include "Audio/Audio.h"
+#include "Audio/DeviceManagerImpl.h"
 #include "ListView.h"
 #pragma comment(lib, "comctl32")
 #pragma comment(lib, "uxtheme")
@@ -18,7 +19,7 @@
  */
 constexpr std::uint32_t maxLoadString = 128;
 
-Audio::DeviceManager audioDeviceManager;
+Audio::DeviceManagerImpl audioDeviceManager;
 
 HINSTANCE hInst;
 HWND mainWindow;
@@ -123,12 +124,10 @@ LRESULT CALLBACK WndProc(HWND window, UINT message, WPARAM wParam, LPARAM lParam
 			listView = new ListView(window);
 			listView->updateSize();
 
-			std::int32_t i = 0;
-
-			for (Audio::Device& device : audioDeviceManager.devices)
+			for (std::size_t i = 0; i < audioDeviceManager.count(); i++)
 			{
+				const Audio::Device& device = audioDeviceManager[i];
 				listView->insert(i, device.getName());
-				i++;
 			}
 
 			break;
@@ -170,7 +169,7 @@ LRESULT CALLBACK WndProc(HWND window, UINT message, WPARAM wParam, LPARAM lParam
 			if (auto maybeItemIndex = listView->handleNotification(notification); maybeItemIndex.has_value())
 			{
 				std::int32_t itemIndex = maybeItemIndex.value();
-				audioDeviceManager.devices[itemIndex].setAsDefault();
+				audioDeviceManager[itemIndex].setAsDefault();
 
 				break;
 			}

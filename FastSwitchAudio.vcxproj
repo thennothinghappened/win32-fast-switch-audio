@@ -133,6 +133,8 @@
   <ItemGroup>
     <ClInclude Include="AboutDialog.h" />
     <ClInclude Include="Audio\Audio.h" />
+    <ClInclude Include="Audio\DeviceImpl.h" />
+    <ClInclude Include="Audio\DeviceManagerImpl.h" />
     <ClInclude Include="FastSwitchAudio.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="ListView.h" />
@@ -142,7 +144,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AboutDialog.cpp" />
-    <ClCompile Include="Audio\Audio.cpp" />
+    <ClCompile Include="Audio\DeviceImpl.cpp" />
+    <ClCompile Include="Audio\DeviceManagerImpl.cpp" />
     <ClCompile Include="FastSwitchAudio.cpp" />
     <ClCompile Include="ListView.cpp" />
   </ItemGroup>

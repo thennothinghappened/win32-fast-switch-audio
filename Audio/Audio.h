@@ -19,40 +19,19 @@ namespace Audio
 	class Device
 	{
 	public:
-		virtual const std::wstring getName() = 0;
+		virtual const std::wstring getName() const = 0;
 		virtual void setAsDefault() = 0;
-	};
-
-	class DeviceImpl : public Device
-	{
-	public:
-		DeviceImpl(IMMDevice* mmDevice, IPropertyStore* propertyStore);
-		DeviceImpl(DeviceImpl&& device) noexcept;
-		~DeviceImpl();
-
-		const std::wstring getName();
-		void setAsDefault();
-
-		IMMDevice* mmDevice;
-		IPropertyStore* propertyStore;
 	};
 
 	class DeviceManager
 	{
-
 	public:
 
-		DeviceManager();
-		
 		[[nodiscard]]
-		std::optional<Error> refresh();
-
-		std::vector<DeviceImpl> devices;
-
-		const Device& getDefault() const;
-
-	private:
-		IMMDeviceEnumerator* deviceEnumerator = nullptr;
+		virtual std::optional<Error> refresh() = 0;
+		virtual Device& operator[](std::size_t index) = 0;
+		virtual Device& getDefault() = 0;
+		virtual const std::size_t count() const = 0;
 
 	};
 
