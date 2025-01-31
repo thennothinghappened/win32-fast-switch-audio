@@ -64,7 +64,7 @@ std::optional<std::int32_t> ListView::handleNotification(const NMHDR* notificati
 	switch (notification->code)
 	{
 
-		case NM_DBLCLK:
+		case NM_CLICK:
 		{
 
 			std::int32_t itemIndex = ListView_GetNextItem(listView, -1, LVNI_SELECTED);
