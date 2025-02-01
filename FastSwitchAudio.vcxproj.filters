@@ -27,13 +27,7 @@
     <ClInclude Include="FastSwitchAudio.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="AboutDialog.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Audio\Audio.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ListView.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="PolicyConfig.h">
@@ -50,19 +44,10 @@
     <ClCompile Include="FastSwitchAudio.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="AboutDialog.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ListView.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Audio\DeviceImpl.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Audio\DeviceManagerImpl.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="AUDIO.CPP">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

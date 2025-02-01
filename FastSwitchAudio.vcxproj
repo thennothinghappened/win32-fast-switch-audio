@@ -136,7 +136,6 @@
     <ClInclude Include="Audio\DeviceManagerImpl.h" />
     <ClInclude Include="FastSwitchAudio.h" />
     <ClInclude Include="framework.h" />
-    <ClInclude Include="ListView.h" />
     <ClInclude Include="PolicyConfig.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="targetver.h" />
@@ -145,7 +144,6 @@
     <ClCompile Include="Audio\DeviceImpl.cpp" />
     <ClCompile Include="Audio\DeviceManagerImpl.cpp" />
     <ClCompile Include="FastSwitchAudio.cpp" />
-    <ClCompile Include="ListView.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="FastSwitchAudio.rc" />

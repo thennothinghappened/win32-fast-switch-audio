@@ -11,7 +11,6 @@
 #include <shellapi.h>
 #include "Audio/Audio.h"
 #include "Audio/DeviceManagerImpl.h"
-#include "ListView.h"
 
 #pragma comment(lib, "comctl32")
 #pragma comment(lib, "uxtheme")
@@ -120,22 +119,32 @@ int APIENTRY wWinMain(
 	return (int)msg.wParam;
 }
 
+
+
 LRESULT CALLBACK WndProc(HWND window, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	static ListView* listView = nullptr;
+	static HMENU menu = CreatePopupMenu();
 
 	switch (message)
 	{
 
 		case WM_CREATE:
 		{
-			listView = new ListView(window);
-			listView->updateSize();
-
-			for (std::int32_t i = 0; i < audioDeviceManager.count(); i++)
+			
+			for (std::uint32_t i = 0; i < audioDeviceManager.count(); i++)
 			{
 				const Audio::Device& device = audioDeviceManager[i];
-				listView->insert(i, device.getName());
+				std::wstring itemLabel = std::wstring(device.getName());
+
+				MENUITEMINFOW item{
+					.cbSize = sizeof(MENUITEMINFOW),
+					.fMask = MIIM_STRING | MIIM_STATE | MIIM_ID,
+					.fState = MFS_ENABLED,
+					.wID = i | 0b1000000, // FIXME: evil magic!!
+					.dwTypeData = itemLabel.data()
+				};
+
+				InsertMenuItemW(menu, i, TRUE, &item);
 			}
 
 			break;
@@ -145,24 +154,24 @@ LRESULT CALLBACK WndProc(HWND window, UINT message, WPARAM wParam, LPARAM lParam
 		{
 			switch (LOWORD(lParam))
 			{
-				case WM_CONTEXTMENU:
+				case WM_RBUTTONDOWN:
 				{
-					if (IsWindowVisible(trayWindow))
-					{
-						ShowWindow(trayWindow, SW_HIDE);
-						break;
-					}
-
 					POINT cursorPos;
 					GetCursorPos(&cursorPos);
 
-					MoveWindow(trayWindow, cursorPos.x, cursorPos.y - 80, 200, 80, true);
-					ShowWindow(trayWindow, SW_SHOW);
+					constexpr std::uint32_t popupFlags = TPM_LEFTALIGN | TPM_LEFTBUTTON | TPM_RIGHTBUTTON | TPM_RETURNCMD;
+					const std::uint32_t itemId = TrackPopupMenu(menu, popupFlags, cursorPos.x, cursorPos.y, 0, trayWindow, nullptr);
 
-					//HMENU menu = CreatePopupMenu();
+					if (itemId & 0b1000000)
+					{
+						const std::uint32_t deviceId = itemId ^ 0b1000000;
+						audioDeviceManager[deviceId].setAsDefault();
 
-					//TrackPopupMenu(menu, TPM_LEFTALIGN | TPM_LEFTBUTTON | TPM_RETURNCMD, 30, 30, 0, trayWindow, nullptr);
-					
+						break;
+					}
+
+
+
 					break;
 				}
 			}
@@ -175,38 +184,6 @@ LRESULT CALLBACK WndProc(HWND window, UINT message, WPARAM wParam, LPARAM lParam
 			if (window == trayWindow)
 			{
 				SetFocus(nullptr);
-			}
-			break;
-		}
-
-		case WM_NOTIFY:
-		{
-			const NMHDR* notification = reinterpret_cast<NMHDR*>(lParam);
-			
-			if (listView == nullptr)
-			{
-				return DefWindowProcW(window, message, wParam, lParam);
-				break;
-			}
-
-			if (auto maybeItemIndex = listView->handleNotification(notification); maybeItemIndex.has_value())
-			{
-				std::int32_t itemIndex = maybeItemIndex.value();
-				audioDeviceManager[itemIndex].setAsDefault();
-
-				ShowWindow(trayWindow, SW_HIDE);
-
-				break;
-			}
-			
-			return DefWindowProcW(window, message, wParam, lParam);
-		}
-
-		case WM_SIZE:
-		{
-			if (listView != nullptr)
-			{
-				listView->updateSize();
 			}
 			break;
 		}
