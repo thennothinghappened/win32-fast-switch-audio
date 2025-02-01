@@ -130,7 +130,6 @@ LRESULT CALLBACK WndProc(HWND window, UINT message, WPARAM wParam, LPARAM lParam
 
 		case WM_CREATE:
 		{
-			
 			for (std::uint32_t i = 0; i < audioDeviceManager.count(); i++)
 			{
 				const Audio::Device& device = audioDeviceManager[i];
@@ -159,6 +158,8 @@ LRESULT CALLBACK WndProc(HWND window, UINT message, WPARAM wParam, LPARAM lParam
 					POINT cursorPos;
 					GetCursorPos(&cursorPos);
 
+					SetForegroundWindow(trayWindow);
+
 					constexpr std::uint32_t popupFlags = TPM_LEFTALIGN | TPM_LEFTBUTTON | TPM_RIGHTBUTTON | TPM_RETURNCMD;
 					const std::uint32_t itemId = TrackPopupMenu(menu, popupFlags, cursorPos.x, cursorPos.y, 0, trayWindow, nullptr);
 
@@ -170,22 +171,11 @@ LRESULT CALLBACK WndProc(HWND window, UINT message, WPARAM wParam, LPARAM lParam
 						break;
 					}
 
-
-
 					break;
 				}
 			}
 
 			return DefWindowProcW(window, message, wParam, lParam);
-		}
-
-		case WM_KILLFOCUS:
-		{
-			if (window == trayWindow)
-			{
-				SetFocus(nullptr);
-			}
-			break;
 		}
 
 		default:
