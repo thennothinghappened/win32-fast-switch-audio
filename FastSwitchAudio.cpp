@@ -149,7 +149,7 @@ LRESULT CALLBACK WndProc(HWND window, UINT message, WPARAM wParam, LPARAM lParam
 			break;
 		}
 
-		case static_cast<std::uint32_t>(Notification::ToggleTrayIcon):
+		case static_cast<UINT>(Notification::ToggleTrayIcon):
 		{
 			switch (LOWORD(lParam))
 			{
