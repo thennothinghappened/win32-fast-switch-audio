@@ -7,9 +7,9 @@ std::optional<Error> DeviceManagerImpl::refresh()
 {
 	devices.clear();
 
-	if (deviceEnumerator == nullptr)
+	if (deviceEnumerator == NULL)
 	{
-		if (FAILED(CoCreateInstance(__uuidof(MMDeviceEnumerator), nullptr, CLSCTX_ALL, IID_PPV_ARGS(&deviceEnumerator))))
+		if (FAILED(CoCreateInstance(__uuidof(MMDeviceEnumerator), NULL, CLSCTX_ALL, IID_PPV_ARGS(&deviceEnumerator))))
 		{
 			return Error{ L"Failed to get an audio device enumerator instance" };
 		}

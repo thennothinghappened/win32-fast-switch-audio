@@ -21,7 +21,7 @@ namespace Audio
 
 	private:
 		std::vector<DeviceImpl> devices;
-		IMMDeviceEnumerator* deviceEnumerator = nullptr;
+		IMMDeviceEnumerator* deviceEnumerator = NULL;
 
 	};
 };

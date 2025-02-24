@@ -50,7 +50,7 @@ int APIENTRY wWinMain(
 {
 	hInst = hInstance;
 
-	if (FAILED(CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE)))
+	if (FAILED(CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE)))
 	{
 		return FALSE;
 	}
@@ -60,7 +60,7 @@ int APIENTRY wWinMain(
 	if (auto maybeError = audioDeviceManager.refresh(); maybeError.has_value())
 	{
 		Audio::Error error = maybeError.value();
-		MessageBoxW(nullptr, error.explanation.c_str(), L"Fatal Error", MB_OK | MB_ICONERROR);
+		MessageBoxW(NULL, error.explanation.c_str(), L"Fatal Error", MB_OK | MB_ICONERROR);
 
 		return FALSE;
 	}
@@ -81,10 +81,10 @@ int APIENTRY wWinMain(
 
 	trayWindow = CreateWindowExW(WS_EX_TOPMOST | WS_EX_TOOLWINDOW,
 		windowClassName, L"", WS_POPUP,
-		0, 0, 0, 0, nullptr, nullptr, hInst, nullptr
+		0, 0, 0, 0, NULL, NULL, hInst, NULL
 	);
 
-	if (trayWindow == nullptr)
+	if (trayWindow == NULL)
 	{
 		return FALSE;
 	}
@@ -107,7 +107,7 @@ int APIENTRY wWinMain(
 	HACCEL acceleratorTable = LoadAccelerators(hInst, MAKEINTRESOURCE(IDC_FASTSWITCHAUDIO));
 	MSG msg;
 
-	while (GetMessageW(&msg, nullptr, 0, 0))
+	while (GetMessageW(&msg, NULL, 0, 0))
 	{
 		if (!TranslateAcceleratorW(msg.hwnd, acceleratorTable, &msg))
 		{
@@ -161,7 +161,7 @@ LRESULT CALLBACK WndProc(HWND window, UINT message, WPARAM wParam, LPARAM lParam
 					SetForegroundWindow(trayWindow);
 
 					constexpr uint32_t popupFlags = TPM_LEFTALIGN | TPM_LEFTBUTTON | TPM_RIGHTBUTTON | TPM_RETURNCMD;
-					const uint32_t itemId = TrackPopupMenu(menu, popupFlags, cursorPos.x, cursorPos.y, 0, trayWindow, nullptr);
+					const uint32_t itemId = TrackPopupMenu(menu, popupFlags, cursorPos.x, cursorPos.y, 0, trayWindow, NULL);
 
 					if (itemId & 0b1000000)
 					{

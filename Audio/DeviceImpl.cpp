@@ -48,6 +48,6 @@ const std::wstring DeviceImpl::getName() const
 void DeviceImpl::setAsDefault()
 {
 	CComPtr<IPolicyConfig> policyConfig;
-	policyConfig.CoCreateInstance(__uuidof(CPolicyConfigClient), nullptr, CLSCTX_ALL); // TODO: error handling
+	policyConfig.CoCreateInstance(__uuidof(CPolicyConfigClient), NULL, CLSCTX_ALL); // TODO: error handling
 	policyConfig->SetDefaultEndpoint(id.data(), eConsole);
 }
