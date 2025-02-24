@@ -22,7 +22,7 @@ std::optional<Error> DeviceManagerImpl::refresh()
 		return Error{ L"Failed to retrieve list of audio output devices" };
 	}
 
-	std::uint32_t outputCount;
+	uint32_t outputCount;
 
 	if (FAILED(mmOutputs->GetCount(&outputCount)))
 	{
@@ -31,7 +31,7 @@ std::optional<Error> DeviceManagerImpl::refresh()
 
 	devices.reserve(outputCount);
 
-	for (std::uint32_t i = 0; i < outputCount; i++)
+	for (uint32_t i = 0; i < outputCount; i++)
 	{
 
 		IMMDevice* mmDevice;
@@ -70,12 +70,12 @@ std::optional<Error> DeviceManagerImpl::refresh()
 
 }
 
-Device& DeviceManagerImpl::operator[](std::size_t index)
+Device& DeviceManagerImpl::operator[](size_t index)
 {
 	return devices[index];
 }
 
-const std::size_t DeviceManagerImpl::count() const
+const size_t DeviceManagerImpl::count() const
 {
 	return devices.size();
 }

@@ -29,9 +29,9 @@ namespace Audio
 
 		[[nodiscard]]
 		virtual std::optional<Error> refresh() = 0;
-		virtual Device& operator[](std::size_t index) = 0;
+		virtual Device& operator[](size_t index) = 0;
 		virtual Device& getDefault() = 0;
-		virtual const std::size_t count() const = 0;
+		virtual const size_t count() const = 0;
 
 	};
 

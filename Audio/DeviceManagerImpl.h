@@ -15,9 +15,9 @@ namespace Audio
 		[[nodiscard]]
 		std::optional<Error> refresh();
 
-		Device& operator[](std::size_t index);
+		Device& operator[](size_t index);
 		Device& getDefault();
-		const std::size_t count() const;
+		const size_t count() const;
 
 	private:
 		std::vector<DeviceImpl> devices;

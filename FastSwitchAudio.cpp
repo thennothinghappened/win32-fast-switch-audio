@@ -26,9 +26,9 @@
 /**
  * @brief Maximum size we're allocating for strings when using `LoadStringW`.
  */
-constexpr std::uint32_t maxLoadString = 128;
+constexpr uint32_t maxLoadString = 128;
 
-enum class Notification : std::uint32_t
+enum class Notification : uint32_t
 {
 	ToggleTrayIcon = (WM_USER + 0x100)
 };
@@ -94,7 +94,7 @@ int APIENTRY wWinMain(
 		.hWnd = trayWindow,
 		.uID = 1,
 		.uFlags = NIF_MESSAGE | NIF_ICON,
-		.uCallbackMessage = static_cast<std::uint32_t>(Notification::ToggleTrayIcon),
+		.uCallbackMessage = static_cast<UINT>(Notification::ToggleTrayIcon),
 		.hIcon = LoadIconW(hInst, MAKEINTRESOURCE(IDI_SMALL)),
 		.uVersion = NOTIFYICON_VERSION_4
 	};
@@ -130,7 +130,7 @@ LRESULT CALLBACK WndProc(HWND window, UINT message, WPARAM wParam, LPARAM lParam
 
 		case WM_CREATE:
 		{
-			for (std::uint32_t i = 0; i < audioDeviceManager.count(); i++)
+			for (uint32_t i = 0; i < audioDeviceManager.count(); i++)
 			{
 				const Audio::Device& device = audioDeviceManager[i];
 				std::wstring itemLabel = std::wstring(device.getName());
@@ -160,12 +160,12 @@ LRESULT CALLBACK WndProc(HWND window, UINT message, WPARAM wParam, LPARAM lParam
 
 					SetForegroundWindow(trayWindow);
 
-					constexpr std::uint32_t popupFlags = TPM_LEFTALIGN | TPM_LEFTBUTTON | TPM_RIGHTBUTTON | TPM_RETURNCMD;
-					const std::uint32_t itemId = TrackPopupMenu(menu, popupFlags, cursorPos.x, cursorPos.y, 0, trayWindow, nullptr);
+					constexpr uint32_t popupFlags = TPM_LEFTALIGN | TPM_LEFTBUTTON | TPM_RIGHTBUTTON | TPM_RETURNCMD;
+					const uint32_t itemId = TrackPopupMenu(menu, popupFlags, cursorPos.x, cursorPos.y, 0, trayWindow, nullptr);
 
 					if (itemId & 0b1000000)
 					{
-						const std::uint32_t deviceId = itemId ^ 0b1000000;
+						const uint32_t deviceId = itemId ^ 0b1000000;
 						audioDeviceManager[deviceId].setAsDefault();
 
 						break;
