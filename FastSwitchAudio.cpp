@@ -35,7 +35,6 @@ enum class Notification : uint32_t
 
 Audio::DeviceManagerImpl audioDeviceManager;
 
-HINSTANCE hInst;
 HWND trayWindow;
 WCHAR windowClassName[maxLoadString];
 
@@ -48,14 +47,13 @@ int APIENTRY wWinMain(
 	_In_ int showWindowMode
 )
 {
-	hInst = hInstance;
 
 	if (FAILED(CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE)))
 	{
 		return FALSE;
 	}
 
-	LoadStringW(hInst, IDC_FASTSWITCHAUDIO, windowClassName, maxLoadString);
+	LoadStringW(hInstance, IDC_FASTSWITCHAUDIO, windowClassName, maxLoadString);
 
 	if (auto maybeError = audioDeviceManager.refresh(); maybeError.has_value())
 	{
@@ -69,19 +67,19 @@ int APIENTRY wWinMain(
 	{
 		.cbSize = sizeof(WNDCLASSEX),
 		.lpfnWndProc = WndProc,
-		.hInstance = hInst,
-		.hIcon = LoadIconW(hInst, MAKEINTRESOURCE(IDI_FASTSWITCHAUDIO)),
+		.hInstance = hInstance,
+		.hIcon = LoadIconW(hInstance, MAKEINTRESOURCE(IDI_FASTSWITCHAUDIO)),
 		.hbrBackground = (HBRUSH)(COLOR_WINDOWFRAME),
 		.lpszMenuName = MAKEINTRESOURCEW(IDC_FASTSWITCHAUDIO),
 		.lpszClassName = windowClassName,
-		.hIconSm = LoadIconW(hInst, MAKEINTRESOURCE(IDI_SMALL)),
+		.hIconSm = LoadIconW(hInstance, MAKEINTRESOURCE(IDI_SMALL)),
 	};
 
 	RegisterClassExW(&windowClass);
 
 	trayWindow = CreateWindowExW(WS_EX_TOPMOST | WS_EX_TOOLWINDOW,
 		windowClassName, L"", WS_POPUP,
-		0, 0, 0, 0, NULL, NULL, hInst, NULL
+		0, 0, 0, 0, NULL, NULL, hInstance, NULL
 	);
 
 	if (trayWindow == NULL)
@@ -95,7 +93,7 @@ int APIENTRY wWinMain(
 		.uID = 1,
 		.uFlags = NIF_MESSAGE | NIF_ICON,
 		.uCallbackMessage = static_cast<UINT>(Notification::ToggleTrayIcon),
-		.hIcon = LoadIconW(hInst, MAKEINTRESOURCE(IDI_SMALL)),
+		.hIcon = LoadIconW(hInstance, MAKEINTRESOURCE(IDI_SMALL)),
 		.uVersion = NOTIFYICON_VERSION_4
 	};
 	
@@ -104,7 +102,7 @@ int APIENTRY wWinMain(
 		Shell_NotifyIcon(NIM_SETVERSION, &trayIconData);
 	}
 
-	HACCEL acceleratorTable = LoadAccelerators(hInst, MAKEINTRESOURCE(IDC_FASTSWITCHAUDIO));
+	HACCEL acceleratorTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_FASTSWITCHAUDIO));
 	MSG msg;
 
 	while (GetMessageW(&msg, NULL, 0, 0))
