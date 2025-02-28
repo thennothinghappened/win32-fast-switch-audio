@@ -35,6 +35,8 @@ enum class Notification : uint32_t
 
 Audio::DeviceManager audioDeviceManager;
 
+
+static HMENU popupMenu;
 HWND trayWindow;
 WCHAR windowClassName[maxLoadString];
 
@@ -49,6 +51,13 @@ int APIENTRY wWinMain(
 {
 
 	if (FAILED(CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE)))
+	{
+		return FALSE;
+	}
+
+	popupMenu = CreatePopupMenu();
+
+	if (popupMenu == NULL)
 	{
 		return FALSE;
 	}
@@ -121,8 +130,6 @@ int APIENTRY wWinMain(
 
 LRESULT CALLBACK WndProc(HWND window, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	static HMENU menu = CreatePopupMenu();
-
 	switch (message)
 	{
 
@@ -141,7 +148,7 @@ LRESULT CALLBACK WndProc(HWND window, UINT message, WPARAM wParam, LPARAM lParam
 					.dwTypeData = itemLabel.data()
 				};
 
-				InsertMenuItemW(menu, i, TRUE, &item);
+				InsertMenuItemW(popupMenu, i, TRUE, &item);
 			}
 
 			break;
@@ -159,7 +166,7 @@ LRESULT CALLBACK WndProc(HWND window, UINT message, WPARAM wParam, LPARAM lParam
 					SetForegroundWindow(trayWindow);
 
 					constexpr uint32_t popupFlags = TPM_LEFTALIGN | TPM_LEFTBUTTON | TPM_RIGHTBUTTON | TPM_RETURNCMD;
-					const uint32_t itemId = TrackPopupMenu(menu, popupFlags, cursorPos.x, cursorPos.y, 0, trayWindow, NULL);
+					const uint32_t itemId = TrackPopupMenu(popupMenu, popupFlags, cursorPos.x, cursorPos.y, 0, trayWindow, NULL);
 
 					if (itemId & 0b1000000)
 					{
