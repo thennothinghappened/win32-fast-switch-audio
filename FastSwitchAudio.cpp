@@ -42,6 +42,12 @@ WCHAR windowClassName[maxLoadString];
 
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 
+/**
+ * @brief Show a fatal error message box if something went wrong we cannot recover from.
+ * @param message The message to be shown.
+ */
+static void showFatalError(const std::wstring message);
+
 int APIENTRY wWinMain(
 	_In_ HINSTANCE hInstance,
 	_In_opt_ HINSTANCE __prevInst,
@@ -52,6 +58,7 @@ int APIENTRY wWinMain(
 
 	if (FAILED(CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE)))
 	{
+		showFatalError(L"COM failed to initialise, which we need for querying devices!");
 		return FALSE;
 	}
 
@@ -59,6 +66,7 @@ int APIENTRY wWinMain(
 
 	if (popupMenu == NULL)
 	{
+		showFatalError(L"Failed to create a popup context menu!");
 		return FALSE;
 	}
 
@@ -67,7 +75,7 @@ int APIENTRY wWinMain(
 	if (auto maybeError = audioDeviceManager.refresh(); maybeError.has_value())
 	{
 		Audio::Error error = maybeError.value();
-		MessageBoxW(NULL, error.explanation.c_str(), L"Fatal Error", MB_OK | MB_ICONERROR);
+		showFatalError(error.explanation);
 
 		return FALSE;
 	}
@@ -93,6 +101,7 @@ int APIENTRY wWinMain(
 
 	if (trayWindow == NULL)
 	{
+		showFatalError(L"Failed to create the tray window!");
 		return FALSE;
 	}
 
@@ -106,11 +115,18 @@ int APIENTRY wWinMain(
 		.uVersion = NOTIFYICON_VERSION_4
 	};
 	
-	if (Shell_NotifyIcon(NIM_ADD, &trayIconData))
+	if (!Shell_NotifyIcon(NIM_ADD, &trayIconData))
 	{
-		Shell_NotifyIcon(NIM_SETVERSION, &trayIconData);
+		showFatalError(L"Failed to add a tray icon to the taskbar!");
+		return FALSE;
 	}
 
+	if (!Shell_NotifyIcon(NIM_SETVERSION, &trayIconData))
+	{
+		showFatalError(L"Apparently running on Windows earlier than Vista! This is not supported right now.");
+		return FALSE;
+	}
+	
 	HACCEL acceleratorTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_FASTSWITCHAUDIO));
 	MSG msg;
 
@@ -191,4 +207,9 @@ LRESULT CALLBACK WndProc(HWND window, UINT message, WPARAM wParam, LPARAM lParam
 	}
 
 	return 0;
+}
+
+void showFatalError(const std::wstring message)
+{
+	MessageBoxW(NULL, message.c_str(), L"Fatal Error", MB_OK | MB_ICONERROR);
 }
