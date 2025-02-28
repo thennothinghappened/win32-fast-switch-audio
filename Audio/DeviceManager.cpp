@@ -1,9 +1,9 @@
 
-#include "DeviceManagerImpl.h"
+#include "DeviceManager.h"
 
 using namespace Audio;
 
-std::optional<Error> DeviceManagerImpl::refresh()
+std::optional<Error> DeviceManager::refresh()
 {
 	devices.clear();
 
@@ -58,7 +58,7 @@ std::optional<Error> DeviceManagerImpl::refresh()
 			return Error{ std::format(L"Failed to open property store for device at index {}", i) };
 		}
 
-		devices.emplace_back(DeviceImpl(mmDevice, propertyStore, id));
+		devices.emplace_back(Device(mmDevice, propertyStore, id));
 
 		// Release our references, since the device adds one.
 		mmDevice->Release();
@@ -70,17 +70,17 @@ std::optional<Error> DeviceManagerImpl::refresh()
 
 }
 
-Device& DeviceManagerImpl::operator[](size_t index)
+Device& DeviceManager::operator[](size_t index)
 {
 	return devices[index];
 }
 
-const size_t DeviceManagerImpl::count() const
+const size_t DeviceManager::count() const
 {
 	return devices.size();
 }
 
-Device& DeviceManagerImpl::getDefault()
+Device& DeviceManager::getDefault()
 {
 	CComPtr<IMMDevice> mmDevice;
 	deviceEnumerator->GetDefaultAudioEndpoint(eRender, eConsole, &mmDevice); // TODO: error handling.
@@ -91,7 +91,7 @@ Device& DeviceManagerImpl::getDefault()
 	std::wstring id = win32Id;
 	CoTaskMemFree(win32Id);
 
-	for (DeviceImpl& device : devices)
+	for (Device& device : devices)
 	{
 		if (device.id == id)
 		{

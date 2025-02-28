@@ -2,12 +2,12 @@
 #pragma once
 
 #include "Audio.h"
-#include "DeviceImpl.h"
+#include "Device.h"
 #include <vector>
 
 namespace Audio
 {
-	class DeviceManagerImpl final : public DeviceManager
+	class DeviceManager
 	{
 
 	public:
@@ -20,7 +20,7 @@ namespace Audio
 		const size_t count() const;
 
 	private:
-		std::vector<DeviceImpl> devices;
+		std::vector<Device> devices;
 		IMMDeviceEnumerator* deviceEnumerator = NULL;
 
 	};

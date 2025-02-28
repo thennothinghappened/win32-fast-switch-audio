@@ -33,10 +33,10 @@
     <ClInclude Include="PolicyConfig.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Audio\DeviceImpl.h">
+    <ClInclude Include="Audio\Device.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Audio\DeviceManagerImpl.h">
+    <ClInclude Include="Audio\DeviceManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -44,10 +44,10 @@
     <ClCompile Include="FastSwitchAudio.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Audio\DeviceImpl.cpp">
+    <ClCompile Include="Audio\Device.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Audio\DeviceManagerImpl.cpp">
+    <ClCompile Include="Audio\DeviceManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

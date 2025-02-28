@@ -10,7 +10,7 @@
 #include <windowsx.h>
 #include <shellapi.h>
 #include "Audio/Audio.h"
-#include "Audio/DeviceManagerImpl.h"
+#include "Audio/DeviceManager.h"
 
 #pragma comment(lib, "comctl32")
 #pragma comment(lib, "uxtheme")
@@ -33,7 +33,7 @@ enum class Notification : uint32_t
 	ToggleTrayIcon = (WM_USER + 0x100)
 };
 
-Audio::DeviceManagerImpl audioDeviceManager;
+Audio::DeviceManager audioDeviceManager;
 
 HWND trayWindow;
 WCHAR windowClassName[maxLoadString];

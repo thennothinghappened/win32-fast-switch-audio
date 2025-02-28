@@ -1,29 +1,29 @@
 
-#include "DeviceImpl.h"
+#include "Device.h"
 #include <functiondiscoverykeys_devpkey.h>
 
 using namespace Audio;
 
-DeviceImpl::DeviceImpl(IMMDevice* mmDevice, IPropertyStore* propertyStore, std::wstring id)
+Device::Device(IMMDevice* mmDevice, IPropertyStore* propertyStore, std::wstring id)
 	: mmDevice(mmDevice), propertyStore(propertyStore), id(id)
 {
 	mmDevice->AddRef();
 	propertyStore->AddRef();
 }
 
-DeviceImpl::DeviceImpl(DeviceImpl&& device) noexcept : mmDevice(device.mmDevice), propertyStore(device.propertyStore), id(device.id)
+Device::Device(Device&& device) noexcept : mmDevice(device.mmDevice), propertyStore(device.propertyStore), id(device.id)
 {
 	mmDevice->AddRef();
 	propertyStore->AddRef();
 }
 
-DeviceImpl::~DeviceImpl()
+Device::~Device()
 {
 	propertyStore->Release();
 	mmDevice->Release();
 }
 
-const std::wstring DeviceImpl::getName() const
+const std::wstring Device::getName() const
 {
 
 	PROPVARIANT shortName;
@@ -45,7 +45,7 @@ const std::wstring DeviceImpl::getName() const
 
 }
 
-void DeviceImpl::setAsDefault()
+void Device::setAsDefault()
 {
 	CComPtr<IPolicyConfig> policyConfig;
 	policyConfig.CoCreateInstance(__uuidof(CPolicyConfigClient), NULL, CLSCTX_ALL); // TODO: error handling
