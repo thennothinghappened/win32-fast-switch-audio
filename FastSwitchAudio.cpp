@@ -42,6 +42,9 @@ struct MenuItemData
 		ExitButton,
 	};
 
+	/**
+	 * @brief The type of item this is.
+	 */
 	const Type type;
 
 	/**
