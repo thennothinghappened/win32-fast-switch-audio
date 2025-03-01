@@ -68,7 +68,7 @@ struct MenuItemData
 };
 
 static Audio::DeviceManager audioDeviceManager;
-static std::vector<MenuItemData> popupMenuItems;
+static std::vector<MenuItemData> popupMenuItems = { MenuItemData{} };
 static HMENU popupMenu;
 
 HWND trayWindow;
