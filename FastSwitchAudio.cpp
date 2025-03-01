@@ -33,10 +33,44 @@ enum class Notification : uint32_t
 	ToggleTrayIcon = (WM_USER + 0x100)
 };
 
-Audio::DeviceManager audioDeviceManager;
+struct MenuItemData
+{
 
+	enum class Type
+	{
+		AudioDevice,
+		ExitButton,
+	};
 
+	const Type type;
+
+	/**
+	 * @brief Associated audio device ID for this menu item, if it represents one.
+	 */
+	const std::optional<Audio::Device::Id> audioDeviceId;
+
+	static MenuItemData device(Audio::Device::Id deviceId)
+	{
+		return MenuItemData{
+			.type = Type::AudioDevice,
+			.audioDeviceId = deviceId
+		};
+	}
+
+	static MenuItemData exitButton()
+	{
+		return MenuItemData{
+			.type = Type::ExitButton,
+			.audioDeviceId = std::nullopt
+		};
+	}
+
+};
+
+static Audio::DeviceManager audioDeviceManager;
+static std::vector<MenuItemData> popupMenuItems;
 static HMENU popupMenu;
+
 HWND trayWindow;
 WCHAR windowClassName[maxLoadString];
 
@@ -55,7 +89,7 @@ int APIENTRY wWinMain(
 	_In_ int showWindowMode
 )
 {
-
+	
 	if (FAILED(CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE)))
 	{
 		showFatalError(L"COM failed to initialise, which we need for querying devices!");
@@ -72,12 +106,45 @@ int APIENTRY wWinMain(
 
 	LoadStringW(hInstance, IDC_FASTSWITCHAUDIO, windowClassName, maxLoadString);
 
-	if (auto maybeError = audioDeviceManager.refresh(); maybeError.has_value())
+	if (const auto maybeError = audioDeviceManager.refresh(); maybeError.has_value())
 	{
 		Audio::Error error = maybeError.value();
 		showFatalError(error.explanation);
 
 		return FALSE;
+	}
+
+	for (const Audio::Device& device : audioDeviceManager.devices)
+	{
+		const UINT itemId = popupMenuItems.size();
+		std::wstring itemLabel = std::wstring(device.getName());
+
+		MENUITEMINFOW item{
+			.cbSize = sizeof(MENUITEMINFOW),
+			.fMask = MIIM_STRING | MIIM_STATE | MIIM_ID,
+			.fState = MFS_ENABLED,
+			.wID = itemId,
+			.dwTypeData = itemLabel.data()
+		};
+
+		popupMenuItems.emplace_back(MenuItemData::device(device.id));
+		InsertMenuItemW(popupMenu, itemId, TRUE, &item);
+	}
+
+	{
+		const UINT itemId = popupMenuItems.size();
+		std::wstring label = L"Quit";
+
+		MENUITEMINFOW item{
+			.cbSize = sizeof(MENUITEMINFOW),
+			.fMask = MIIM_STRING | MIIM_STATE | MIIM_ID,
+			.fState = MFS_ENABLED,
+			.wID = itemId,
+			.dwTypeData = label.data()
+		};
+
+		popupMenuItems.emplace_back(MenuItemData::exitButton());
+		InsertMenuItemW(popupMenu, itemId, TRUE, &item);
 	}
 
 	const WNDCLASSEXW windowClass
@@ -148,28 +215,6 @@ LRESULT CALLBACK WndProc(HWND window, UINT message, WPARAM wParam, LPARAM lParam
 {
 	switch (message)
 	{
-
-		case WM_CREATE:
-		{
-			for (uint32_t i = 0; i < audioDeviceManager.count(); i++)
-			{
-				const Audio::Device& device = audioDeviceManager[i];
-				std::wstring itemLabel = std::wstring(device.getName());
-
-				MENUITEMINFOW item{
-					.cbSize = sizeof(MENUITEMINFOW),
-					.fMask = MIIM_STRING | MIIM_STATE | MIIM_ID,
-					.fState = MFS_ENABLED,
-					.wID = i | 0b1000000, // FIXME: evil magic!!
-					.dwTypeData = itemLabel.data()
-				};
-
-				InsertMenuItemW(popupMenu, i, TRUE, &item);
-			}
-
-			break;
-		}
-
 		case static_cast<UINT>(Notification::ToggleTrayIcon):
 		{
 			switch (LOWORD(lParam))
@@ -181,22 +226,44 @@ LRESULT CALLBACK WndProc(HWND window, UINT message, WPARAM wParam, LPARAM lParam
 
 					SetForegroundWindow(trayWindow);
 
-					constexpr uint32_t popupFlags = TPM_LEFTALIGN | TPM_LEFTBUTTON | TPM_RIGHTBUTTON | TPM_RETURNCMD;
-					const uint32_t itemId = TrackPopupMenu(popupMenu, popupFlags, cursorPos.x, cursorPos.y, 0, trayWindow, NULL);
+					constexpr UINT popupFlags = TPM_LEFTALIGN | TPM_LEFTBUTTON | TPM_RIGHTBUTTON | TPM_RETURNCMD;
+					const UINT itemId = TrackPopupMenu(popupMenu, popupFlags, cursorPos.x, cursorPos.y, 0, trayWindow, NULL);
 
-					if (itemId & 0b1000000)
+					if (itemId == NULL)
 					{
-						const uint32_t deviceId = itemId ^ 0b1000000;
-						audioDeviceManager[deviceId].setAsDefault();
-
 						break;
+					}
+
+					const MenuItemData itemData = popupMenuItems[itemId];
+
+					switch (itemData.type)
+					{
+						case MenuItemData::Type::AudioDevice:
+						{
+							Audio::Device::Id deviceId = itemData.audioDeviceId.value();
+							Audio::Device& device = audioDeviceManager[deviceId];
+
+							device.setAsDefault();
+							break;
+						}
+
+						case MenuItemData::Type::ExitButton:
+						{
+							PostQuitMessage(0);
+							break;
+						}
 					}
 
 					break;
 				}
+
+				default:
+				{
+					return DefWindowProcW(window, message, wParam, lParam);
+				}
 			}
 
-			return DefWindowProcW(window, message, wParam, lParam);
+			break;
 		}
 
 		default:

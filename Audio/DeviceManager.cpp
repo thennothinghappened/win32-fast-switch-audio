@@ -3,7 +3,7 @@
 
 using namespace Audio;
 
-std::optional<Error> DeviceManager::refresh()
+const std::optional<Error> DeviceManager::refresh()
 {
 	devices.clear();
 
@@ -70,14 +70,17 @@ std::optional<Error> DeviceManager::refresh()
 
 }
 
-Device& DeviceManager::operator[](size_t index)
+Device& Audio::DeviceManager::operator[](Device::Id id)
 {
-	return devices[index];
-}
+	for (Device& device : devices)
+	{
+		if (device.id == id)
+		{
+			return device;
+		}
+	}
 
-const size_t DeviceManager::count() const
-{
-	return devices.size();
+	throw std::logic_error("Couldn't find the device associated with the provided ID");
 }
 
 Device& DeviceManager::getDefault()

@@ -12,15 +12,29 @@ namespace Audio
 
 	public:
 
+		/**
+		 * @brief Refreshes the list of audio devices.
+		 * @return An error, if one occurred during the operation.
+		 */
 		[[nodiscard]]
-		std::optional<Error> refresh();
+		const std::optional<Error> refresh();
 
-		Device& operator[](size_t index);
+		/**
+		 * @brief Gets an audio device by its unique ID.
+		 * @param id Opaque identifier of the audio device.
+		 * @return The audio device associated with the provided ID.
+		 */
+		Device& operator[](Device::Id id);
+
+		/**
+		 * @brief Gets the audio device that's been set as the default.
+		 * @return The default audio device.
+		 */
 		Device& getDefault();
-		const size_t count() const;
+
+		std::vector<Device> devices;
 
 	private:
-		std::vector<Device> devices;
 		IMMDeviceEnumerator* deviceEnumerator = NULL;
 
 	};
