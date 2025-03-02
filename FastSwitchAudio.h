@@ -53,9 +53,9 @@ struct MenuItemData
 /**
  * @brief Maximum size we're allocating for strings when using `LoadStringW`.
  */
-constexpr uint32_t maxLoadString = 128;
+constexpr UINT maxLoadString = 128;
 
-enum class Notification : uint32_t
+enum class Notification : UINT
 {
 	ToggleTrayIcon = (WM_USER + 0x100)
 };
