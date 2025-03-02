@@ -30,6 +30,7 @@ struct MenuItemData
 	enum class Type
 	{
 		AudioDevice,
+		RefreshButton,
 		ExitButton,
 	};
 
@@ -51,10 +52,10 @@ struct MenuItemData
 		};
 	}
 
-	static MenuItemData exitButton()
+	static MenuItemData button(Type type)
 	{
 		return MenuItemData{
-			.type = Type::ExitButton,
+			.type = type,
 			.audioDeviceId = std::nullopt
 		};
 	}
@@ -85,6 +86,12 @@ static void ShowFatalError(const std::wstring message)
 {
 	MessageBoxW(NULL, message.c_str(), L"Fatal Error", MB_OK | MB_ICONERROR);
 }
+
+/**
+ * @brief Refresh the contents of the popup menu for changes in the device list.
+ * Ideally, we'd only change what needs changing, but this is the lazy way out for now.
+ */
+static void RefreshPopupMenu();
 
 /**
  * @brief Main window procedure.

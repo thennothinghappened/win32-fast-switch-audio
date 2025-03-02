@@ -54,7 +54,7 @@ int APIENTRY wWinMain(
 
 	g_popupMenu = new PopupMenu<MenuItemData>(g_trayWindow, popupMenuHandle);
 
-	if (const auto maybeError = g_audioDeviceManager.refresh(); maybeError.has_value())
+	if (auto maybeError = g_audioDeviceManager.refresh())
 	{
 		Audio::Error error = maybeError.value();
 		ShowFatalError(error.explanation);
@@ -62,15 +62,7 @@ int APIENTRY wWinMain(
 		return FALSE;
 	}
 
-	for (const Audio::Device& device : g_audioDeviceManager.devices)
-	{
-		std::wstring label = std::wstring(device.getName());
-
-		// TODO: C++ may be sneakily doing the whole copy constructor business here, I haven't checked though.
-		g_popupMenu->append(MenuItemData::device(device.id), label);
-	}
-
-	g_popupMenu->append(MenuItemData::exitButton(), L"Quit");
+	RefreshPopupMenu();
 
 	NOTIFYICONDATA trayIconData{
 		.cbSize = sizeof(NOTIFYICONDATA),
@@ -109,6 +101,22 @@ int APIENTRY wWinMain(
 	return (int)msg.wParam;
 }
 
+void RefreshPopupMenu()
+{
+	g_popupMenu->clear();
+
+	for (const Audio::Device& device : g_audioDeviceManager.devices)
+	{
+		std::wstring label = std::wstring(device.getName());
+
+		// TODO: C++ may be sneakily doing the whole copy constructor business here, I haven't checked though.
+		g_popupMenu->append(MenuItemData::device(device.id), label);
+	}
+
+	g_popupMenu->append(MenuItemData::button(MenuItemData::Type::RefreshButton), L"Refresh");
+	g_popupMenu->append(MenuItemData::button(MenuItemData::Type::ExitButton), L"Quit");
+}
+
 LRESULT CALLBACK TrayWindowProc(HWND window, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	switch (message)
@@ -140,6 +148,21 @@ LRESULT CALLBACK TrayWindowProc(HWND window, UINT message, WPARAM wParam, LPARAM
 							Audio::Device& device = g_audioDeviceManager[deviceId];
 
 							device.setAsDefault();
+							break;
+						}
+
+						case MenuItemData::Type::RefreshButton:
+						{
+							if (auto maybeError = g_audioDeviceManager.refresh())
+							{
+								Audio::Error error = maybeError.value();
+								ShowFatalError(error.explanation);
+
+								PostQuitMessage(1);
+								break;
+							}
+
+							RefreshPopupMenu();
 							break;
 						}
 
