@@ -145,7 +145,6 @@
     <ClCompile Include="Audio\Device.cpp" />
     <ClCompile Include="Audio\DeviceManager.cpp" />
     <ClCompile Include="FastSwitchAudio.cpp" />
-    <ClCompile Include="PopupMenu.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="FastSwitchAudio.rc" />
