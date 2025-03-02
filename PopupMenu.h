@@ -67,8 +67,6 @@ public:
 			return std::nullopt;
 		}
 
-		OutputDebugStringW(std::format(L"\n\n\nID = {}\n\n\n", id).c_str());
-
 		return items.at(id);
 	}
 
