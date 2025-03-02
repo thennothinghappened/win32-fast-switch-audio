@@ -129,8 +129,6 @@ LRESULT CALLBACK TrayWindowProc(HWND window, UINT message, WPARAM wParam, LPARAM
 					GetCursorPos(&cursorPos);
 
 					SetForegroundWindow(g_trayWindow);
-
-
 					std::optional<MenuItemData> maybeItem = g_popupMenu->track(cursorPos);
 
 					if (!maybeItem.has_value())
