@@ -3,17 +3,6 @@
 
 #include "FastSwitchAudio.h"
 
-#pragma comment(lib, "comctl32")
-#pragma comment(lib, "uxtheme")
-
-#pragma comment(linker, "\"/manifestdependency:type='win32'	\
-	name='Microsoft.Windows.Common-Controls'				\
-	version='6.0.0.0'										\
-	processorArchitecture='*'								\
-	publicKeyToken='6595b64144ccf1df'						\
-	language='*'											\
-\"")
-
 static WCHAR g_trayWindowClassName[maxLoadString];
 static HWND g_trayWindow;
 
