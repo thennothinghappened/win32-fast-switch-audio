@@ -3,12 +3,6 @@
 
 #include "FastSwitchAudio.h"
 
-static WCHAR g_trayWindowClassName[maxLoadString];
-static HWND g_trayWindow;
-
-static Audio::DeviceManager g_audioDeviceManager;
-static PopupMenu<MenuItemData>* g_popupMenu;
-
 int APIENTRY wWinMain(
 	_In_ HINSTANCE hInstance,
 	_In_opt_ HINSTANCE __prevInst,
