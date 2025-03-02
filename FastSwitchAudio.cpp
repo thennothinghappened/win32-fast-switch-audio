@@ -1,16 +1,7 @@
 // FastSwitchAudio.cpp : Defines the entry point for the application.
 //
 
-#include "framework.h"
 #include "FastSwitchAudio.h"
-#include <cstdint>
-#include <format>
-#include <vector>
-#include <ranges>
-#include <windowsx.h>
-#include <shellapi.h>
-#include "Audio/Audio.h"
-#include "Audio/DeviceManager.h"
 
 #pragma comment(lib, "comctl32")
 #pragma comment(lib, "uxtheme")
@@ -23,67 +14,11 @@
 	language='*'											\
 \"")
 
-/**
- * @brief Maximum size we're allocating for strings when using `LoadStringW`.
- */
-constexpr uint32_t maxLoadString = 128;
+static WCHAR g_trayWindowClassName[maxLoadString];
+static HWND g_trayWindow;
 
-enum class Notification : uint32_t
-{
-	ToggleTrayIcon = (WM_USER + 0x100)
-};
-
-struct MenuItemData
-{
-
-	enum class Type
-	{
-		AudioDevice,
-		ExitButton,
-	};
-
-	/**
-	 * @brief The type of item this is.
-	 */
-	const Type type;
-
-	/**
-	 * @brief Associated audio device ID for this menu item, if it represents one.
-	 */
-	const std::optional<Audio::Device::Id> audioDeviceId;
-
-	static MenuItemData device(Audio::Device::Id deviceId)
-	{
-		return MenuItemData{
-			.type = Type::AudioDevice,
-			.audioDeviceId = deviceId
-		};
-	}
-
-	static MenuItemData exitButton()
-	{
-		return MenuItemData{
-			.type = Type::ExitButton,
-			.audioDeviceId = std::nullopt
-		};
-	}
-
-};
-
-static Audio::DeviceManager audioDeviceManager;
-static std::vector<MenuItemData> popupMenuItems = { MenuItemData{} };
-static HMENU popupMenu;
-
-HWND trayWindow;
-WCHAR windowClassName[maxLoadString];
-
-LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
-
-/**
- * @brief Show a fatal error message box if something went wrong we cannot recover from.
- * @param message The message to be shown.
- */
-static void showFatalError(const std::wstring message);
+static Audio::DeviceManager g_audioDeviceManager;
+static PopupMenu<MenuItemData>* g_popupMenu;
 
 int APIENTRY wWinMain(
 	_In_ HINSTANCE hInstance,
@@ -95,89 +30,68 @@ int APIENTRY wWinMain(
 	
 	if (FAILED(CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE)))
 	{
-		showFatalError(L"COM failed to initialise, which we need for querying devices!");
+		ShowFatalError(L"COM failed to initialise, which we need for querying devices!");
 		return FALSE;
 	}
-
-	popupMenu = CreatePopupMenu();
-
-	if (popupMenu == NULL)
-	{
-		showFatalError(L"Failed to create a popup context menu!");
-		return FALSE;
-	}
-
-	LoadStringW(hInstance, IDC_FASTSWITCHAUDIO, windowClassName, maxLoadString);
-
-	if (const auto maybeError = audioDeviceManager.refresh(); maybeError.has_value())
-	{
-		Audio::Error error = maybeError.value();
-		showFatalError(error.explanation);
-
-		return FALSE;
-	}
-
-	for (const Audio::Device& device : audioDeviceManager.devices)
-	{
-		const UINT itemId = popupMenuItems.size();
-		std::wstring itemLabel = std::wstring(device.getName());
-
-		MENUITEMINFOW item{
-			.cbSize = sizeof(MENUITEMINFOW),
-			.fMask = MIIM_STRING | MIIM_STATE | MIIM_ID,
-			.fState = MFS_ENABLED,
-			.wID = itemId,
-			.dwTypeData = itemLabel.data()
-		};
-
-		popupMenuItems.emplace_back(MenuItemData::device(device.id));
-		InsertMenuItemW(popupMenu, itemId, TRUE, &item);
-	}
-
-	{
-		const UINT itemId = popupMenuItems.size();
-		std::wstring label = L"Quit";
-
-		MENUITEMINFOW item{
-			.cbSize = sizeof(MENUITEMINFOW),
-			.fMask = MIIM_STRING | MIIM_STATE | MIIM_ID,
-			.fState = MFS_ENABLED,
-			.wID = itemId,
-			.dwTypeData = label.data()
-		};
-
-		popupMenuItems.emplace_back(MenuItemData::exitButton());
-		InsertMenuItemW(popupMenu, itemId, TRUE, &item);
-	}
+	
+	LoadStringW(hInstance, IDC_FASTSWITCHAUDIO, g_trayWindowClassName, maxLoadString);
 
 	const WNDCLASSEXW windowClass
 	{
 		.cbSize = sizeof(WNDCLASSEX),
-		.lpfnWndProc = WndProc,
+		.lpfnWndProc = TrayWindowProc,
 		.hInstance = hInstance,
 		.hIcon = LoadIconW(hInstance, MAKEINTRESOURCE(IDI_FASTSWITCHAUDIO)),
 		.hbrBackground = (HBRUSH)(COLOR_WINDOWFRAME),
 		.lpszMenuName = MAKEINTRESOURCEW(IDC_FASTSWITCHAUDIO),
-		.lpszClassName = windowClassName,
+		.lpszClassName = g_trayWindowClassName,
 		.hIconSm = LoadIconW(hInstance, MAKEINTRESOURCE(IDI_SMALL)),
 	};
 
 	RegisterClassExW(&windowClass);
 
-	trayWindow = CreateWindowExW(WS_EX_TOPMOST | WS_EX_TOOLWINDOW,
-		windowClassName, L"", WS_POPUP,
+	g_trayWindow = CreateWindowExW(WS_EX_TOPMOST | WS_EX_TOOLWINDOW,
+		g_trayWindowClassName, L"", WS_POPUP,
 		0, 0, 0, 0, NULL, NULL, hInstance, NULL
 	);
 
-	if (trayWindow == NULL)
+	if (g_trayWindow == NULL)
 	{
-		showFatalError(L"Failed to create the tray window!");
+		ShowFatalError(L"Failed to create the tray window!");
 		return FALSE;
 	}
 
+	HMENU popupMenuHandle = CreatePopupMenu();
+
+	if (popupMenuHandle == NULL)
+	{
+		ShowFatalError(L"Failed to create a popup context menu!");
+		return FALSE;
+	}
+
+	g_popupMenu = new PopupMenu<MenuItemData>(g_trayWindow, popupMenuHandle);
+
+	if (const auto maybeError = g_audioDeviceManager.refresh(); maybeError.has_value())
+	{
+		Audio::Error error = maybeError.value();
+		ShowFatalError(error.explanation);
+
+		return FALSE;
+	}
+
+	for (const Audio::Device& device : g_audioDeviceManager.devices)
+	{
+		std::wstring label = std::wstring(device.getName());
+
+		// TODO: C++ may be sneakily doing the whole copy constructor business here, I haven't checked though.
+		g_popupMenu->append(MenuItemData::device(device.id), label);
+	}
+
+	g_popupMenu->append(MenuItemData::exitButton(), L"Quit");
+
 	NOTIFYICONDATA trayIconData{
 		.cbSize = sizeof(NOTIFYICONDATA),
-		.hWnd = trayWindow,
+		.hWnd = g_trayWindow,
 		.uID = 1,
 		.uFlags = NIF_MESSAGE | NIF_ICON,
 		.uCallbackMessage = static_cast<UINT>(Notification::ToggleTrayIcon),
@@ -187,13 +101,13 @@ int APIENTRY wWinMain(
 	
 	if (!Shell_NotifyIcon(NIM_ADD, &trayIconData))
 	{
-		showFatalError(L"Failed to add a tray icon to the taskbar!");
+		ShowFatalError(L"Failed to add a tray icon to the taskbar!");
 		return FALSE;
 	}
 
 	if (!Shell_NotifyIcon(NIM_SETVERSION, &trayIconData))
 	{
-		showFatalError(L"Apparently running on Windows earlier than Vista! This is not supported right now.");
+		ShowFatalError(L"Apparently running on Windows earlier than Vista! This is not supported right now.");
 		return FALSE;
 	}
 	
@@ -212,9 +126,7 @@ int APIENTRY wWinMain(
 	return (int)msg.wParam;
 }
 
-
-
-LRESULT CALLBACK WndProc(HWND window, UINT message, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK TrayWindowProc(HWND window, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	switch (message)
 	{
@@ -227,24 +139,24 @@ LRESULT CALLBACK WndProc(HWND window, UINT message, WPARAM wParam, LPARAM lParam
 					POINT cursorPos;
 					GetCursorPos(&cursorPos);
 
-					SetForegroundWindow(trayWindow);
+					SetForegroundWindow(g_trayWindow);
 
-					constexpr UINT popupFlags = TPM_LEFTALIGN | TPM_LEFTBUTTON | TPM_RIGHTBUTTON | TPM_RETURNCMD;
-					const UINT itemId = TrackPopupMenu(popupMenu, popupFlags, cursorPos.x, cursorPos.y, 0, trayWindow, NULL);
 
-					if (itemId == NULL)
+					std::optional<MenuItemData> maybeItem = g_popupMenu->track(cursorPos);
+
+					if (!maybeItem.has_value())
 					{
 						break;
 					}
 
-					const MenuItemData itemData = popupMenuItems[itemId];
+					MenuItemData item = maybeItem.value();
 
-					switch (itemData.type)
+					switch (item.type)
 					{
 						case MenuItemData::Type::AudioDevice:
 						{
-							Audio::Device::Id deviceId = itemData.audioDeviceId.value();
-							Audio::Device& device = audioDeviceManager[deviceId];
+							Audio::Device::Id deviceId = item.audioDeviceId.value();
+							Audio::Device& device = g_audioDeviceManager[deviceId];
 
 							device.setAsDefault();
 							break;
@@ -277,9 +189,4 @@ LRESULT CALLBACK WndProc(HWND window, UINT message, WPARAM wParam, LPARAM lParam
 	}
 
 	return 0;
-}
-
-void showFatalError(const std::wstring message)
-{
-	MessageBoxW(NULL, message.c_str(), L"Fatal Error", MB_OK | MB_ICONERROR);
 }
