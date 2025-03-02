@@ -42,7 +42,7 @@ public:
 		for (auto iterator = items.cbegin(); iterator != items.cend(); iterator++)
 		{
 			UINT id = iterator->first;
-			RemoveMenu(menu, id, MF_BYCOMMAND);
+			DeleteMenu(menu, id, MF_BYCOMMAND);
 		}
 
 		items.clear();
