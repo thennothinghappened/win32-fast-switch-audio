@@ -46,10 +46,9 @@ public:
 	 */
 	void clear()
 	{
-		for (auto iterator = items.cbegin(); iterator != items.cend(); iterator++)
+		while (GetMenuItemCount(menu) > 0)
 		{
-			UINT id = iterator->first;
-			DeleteMenu(menu, id, MF_BYCOMMAND);
+			DeleteMenu(menu, 0, MF_BYPOSITION);
 		}
 
 		nextId = firstId;
