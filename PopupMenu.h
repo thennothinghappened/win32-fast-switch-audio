@@ -57,7 +57,7 @@ public:
 	}
 
 	/**
-	 * @brief Analogous to Win32's `TrackPopupMenu()`, but returns the assocated item directly, instead of the
+	 * @brief Analogous to Win32's `TrackPopupMenu()`, but returns the assocated item directly, instead of the internal ID.
 	 * @param position The position to show the menu at.
 	 * @return The chosen item, or nothing if no option was chosen.
 	 */
