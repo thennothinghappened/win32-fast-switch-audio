@@ -8,99 +8,104 @@
 #include <optional>
 #include <stdexcept>
 
-template<typename ITEM>
-class PopupMenu
+namespace UI
 {
-public:
+
+	template<typename ITEM>
+	class PopupMenu
+	{
+	public:
 	
-	PopupMenu(HWND owner, HMENU menu) 
-		: owner(owner), menu(menu) {}
+		PopupMenu(HWND owner, HMENU menu) 
+			: owner(owner), menu(menu) {}
 
-	/**
-	 * @brief Append a new item to the end of the item list.
-	 * @param item The item to append.
-	 * @param label A label displayed for the item.
-	 */
-	void append(ITEM item, std::wstring label)
-	{
-		UINT id = nextId;
-		nextId++;
-
-		items.insert({ id, item });
-		AppendMenuW(menu, MF_ENABLED | MF_STRING, id, label.data());
-	}
-
-	/**
-	 * @brief Append a visual separator between items.
-	 */
-	void appendSeparator()
-	{
-		UINT id = nextId;
-		nextId++;
-
-		AppendMenuW(menu, MF_SEPARATOR, id, NULL);
-	}
-
-	/**
-	 * @brief Clear the list of items in the menu.
-	 */
-	void clear()
-	{
-		while (GetMenuItemCount(menu) > 0)
+		/**
+		 * @brief Append a new item to the end of the item list.
+		 * @param item The item to append.
+		 * @param label A label displayed for the item.
+		 */
+		void append(ITEM item, std::wstring label)
 		{
-			DeleteMenu(menu, 0, MF_BYPOSITION);
+			UINT id = nextId;
+			nextId++;
+
+			items.insert({ id, item });
+			AppendMenuW(menu, MF_ENABLED | MF_STRING, id, label.data());
 		}
 
-		nextId = firstId;
-		items.clear();
-	}
-
-	/**
-	 * @brief Analogous to Win32's `TrackPopupMenu()`, but returns the assocated item directly, instead of the internal ID.
-	 * @param position The position to show the menu at.
-	 * @return The chosen item, or nothing if no option was chosen.
-	 */
-	std::optional<ITEM> track(POINT position) const
-	{
-		const UINT id = TrackPopupMenu(menu,
-			TPM_LEFTALIGN | TPM_LEFTBUTTON | TPM_RIGHTBUTTON | TPM_RETURNCMD,
-			position.x,
-			position.y,
-			0, owner, NULL
-		);
-
-		if (id == 0)
+		/**
+		 * @brief Append a visual separator between items.
+		 */
+		void appendSeparator()
 		{
-			return std::nullopt;
+			UINT id = nextId;
+			nextId++;
+
+			AppendMenuW(menu, MF_SEPARATOR, id, NULL);
 		}
 
-		if (!items.contains(id))
+		/**
+		 * @brief Clear the list of items in the menu.
+		 */
+		void clear()
 		{
-			// Must be a separator.
-			return std::nullopt;
+			while (GetMenuItemCount(menu) > 0)
+			{
+				DeleteMenu(menu, 0, MF_BYPOSITION);
+			}
+
+			nextId = firstId;
+			items.clear();
 		}
 
-		return items.at(id);
-	}
+		/**
+		 * @brief Analogous to Win32's `TrackPopupMenu()`, but returns the assocated item directly, instead of the internal ID.
+		 * @param position The position to show the menu at.
+		 * @return The chosen item, or nothing if no option was chosen.
+		 */
+		std::optional<ITEM> track(POINT position) const
+		{
+			const UINT id = TrackPopupMenu(menu,
+				TPM_LEFTALIGN | TPM_LEFTBUTTON | TPM_RIGHTBUTTON | TPM_RETURNCMD,
+				position.x,
+				position.y,
+				0, owner, NULL
+			);
 
-private:
+			if (id == 0)
+			{
+				return std::nullopt;
+			}
 
-	const HMENU menu;
-	const HWND owner;
+			if (!items.contains(id))
+			{
+				// Must be a separator.
+				return std::nullopt;
+			}
 
-	/**
-	 * @brief The first ID to be used. Win32 gives special meaning to `0`, so we start at `1`.
-	 */
-	static constexpr UINT firstId = 1;
+			return items.at(id);
+		}
 
-	/**
-	 * @brief The next identifier to use for the next appended element.
-	 */
-	UINT nextId = firstId;
+	private:
 
-	/**
-	 * @brief Menu items in the popup context menu, associated with IDs.
-	 */
-	std::unordered_map<UINT, ITEM> items;
+		const HMENU menu;
+		const HWND owner;
+
+		/**
+		 * @brief The first ID to be used. Win32 gives special meaning to `0`, so we start at `1`.
+		 */
+		static constexpr UINT firstId = 1;
+
+		/**
+		 * @brief The next identifier to use for the next appended element.
+		 */
+		UINT nextId = firstId;
+
+		/**
+		 * @brief Menu items in the popup context menu, associated with IDs.
+		 */
+		std::unordered_map<UINT, ITEM> items;
+
+	};
 
 };

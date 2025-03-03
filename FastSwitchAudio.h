@@ -76,7 +76,7 @@ static WCHAR g_trayWindowClassName[maxLoadString];
 static HWND g_trayWindow;
 
 static Audio::DeviceManager g_audioDeviceManager;
-static PopupMenu<MenuItemData>* g_popupMenu;
+static UI::PopupMenu<MenuItemData>* g_popupMenu;
 
 /**
  * @brief Show a fatal error message box if something went wrong we cannot recover from.

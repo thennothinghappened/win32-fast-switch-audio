@@ -52,7 +52,7 @@ int APIENTRY wWinMain(
 		return FALSE;
 	}
 
-	g_popupMenu = new PopupMenu<MenuItemData>(g_trayWindow, popupMenuHandle);
+	g_popupMenu = new UI::PopupMenu<MenuItemData>(g_trayWindow, popupMenuHandle);
 
 	if (auto maybeError = g_audioDeviceManager.refresh())
 	{
