@@ -23,12 +23,8 @@ public:
 	 */
 	void append(ITEM item, std::wstring label)
 	{
-		UINT id = 1;
-
-		while (items.contains(id))
-		{
-			id++;
-		}
+		UINT id = nextId;
+		nextId++;
 
 		items.insert({ id, item });
 		AppendMenuW(menu, MF_ENABLED | MF_STRING, id, label.data());
@@ -45,6 +41,7 @@ public:
 			DeleteMenu(menu, id, MF_BYCOMMAND);
 		}
 
+		nextId = firstId;
 		items.clear();
 	}
 
@@ -71,8 +68,19 @@ public:
 	}
 
 private:
+
 	const HMENU menu;
 	const HWND owner;
+
+	/**
+	 * @brief The first ID to be used. Win32 gives special meaning to `0`, so we start at `1`.
+	 */
+	static constexpr UINT firstId = 1;
+
+	/**
+	 * @brief The next identifier to use for the next appended element.
+	 */
+	UINT nextId = firstId;
 
 	/**
 	 * @brief Menu items in the popup context menu, associated with IDs.
