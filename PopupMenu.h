@@ -31,6 +31,17 @@ public:
 	}
 
 	/**
+	 * @brief Append a visual separator between items.
+	 */
+	void appendSeparator()
+	{
+		UINT id = nextId;
+		nextId++;
+
+		AppendMenuW(menu, MF_SEPARATOR, id, NULL);
+	}
+
+	/**
 	 * @brief Clear the list of items in the menu.
 	 */
 	void clear()
@@ -61,6 +72,12 @@ public:
 
 		if (id == 0)
 		{
+			return std::nullopt;
+		}
+
+		if (!items.contains(id))
+		{
+			// Must be a separator.
 			return std::nullopt;
 		}
 

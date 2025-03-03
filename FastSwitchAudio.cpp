@@ -113,6 +113,7 @@ void RefreshPopupMenu()
 		g_popupMenu->append(MenuItemData::device(device.id), label);
 	}
 
+	g_popupMenu->appendSeparator();
 	g_popupMenu->append(MenuItemData::button(MenuItemData::Type::RefreshButton), L"Refresh");
 	g_popupMenu->append(MenuItemData::button(MenuItemData::Type::ExitButton), L"Quit");
 }
