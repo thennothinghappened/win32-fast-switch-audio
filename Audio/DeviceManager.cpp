@@ -74,7 +74,7 @@ const std::optional<Error> DeviceManager::refresh()
 			return Error{ std::format(L"Failed to open property store for device at index {}", i) };
 		}
 
-		devices.emplace_back(Device(mmDevice, propertyStore, id));
+		devices.emplace_back(mmDevice, propertyStore, id);
 
 		// Release our references, since the device adds one.
 		mmDevice->Release();
