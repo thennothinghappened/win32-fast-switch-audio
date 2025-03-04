@@ -72,12 +72,19 @@ success:
 
 ULONG __stdcall DeviceManager::NotificationClient::AddRef()
 {
-	// No-op, we don't ever delete the client.
-	return 1;
+	refCount++;
+	return refCount;
 }
 
 ULONG __stdcall DeviceManager::NotificationClient::Release()
 {
-	// No-op, we don't ever delete the client.
-	return 1;
+	refCount--;
+
+	if (refCount == 0)
+	{
+		delete this;
+		return 0;
+	}
+
+	return refCount;
 }

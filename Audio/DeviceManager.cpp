@@ -16,7 +16,17 @@ DeviceManager::DeviceManager(const OnChange onChange, const OnFatalError onFatal
 		throw Error{ L"Failed to get an audio device enumerator instance" };
 	}
 
-	deviceEnumerator->RegisterEndpointNotificationCallback(&notificationClient);
+	deviceEnumerator->RegisterEndpointNotificationCallback(notificationClient);
+}
+
+Audio::DeviceManager::~DeviceManager()
+{
+	OutputDebugStringW(L"DeviceManager::~DeviceManager()");
+
+	deviceEnumerator->UnregisterEndpointNotificationCallback(notificationClient);
+	policyConfig->Release();
+	deviceEnumerator->Release();
+	notificationClient->Release();
 }
 
 const std::optional<Error> DeviceManager::refresh()

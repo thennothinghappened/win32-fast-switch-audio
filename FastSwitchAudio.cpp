@@ -50,7 +50,7 @@ int APIENTRY wWinMain(
 		ShowFatalError(L"Failed to create a popup context menu!");
 		return FALSE;
 	}
-
+	
 	g_popupMenu = new UI::PopupMenu<MenuItemData>(g_trayWindow, popupMenuHandle);
 	g_audioDeviceManager = new Audio::DeviceManager(RefreshPopupMenu, ShowFatalError);
 
@@ -60,23 +60,23 @@ int APIENTRY wWinMain(
 		return FALSE;
 	}
 
-	NOTIFYICONDATA trayIconData{
-		.cbSize = sizeof(NOTIFYICONDATA),
+	NOTIFYICONDATAW trayIconData{
+		.cbSize = sizeof(NOTIFYICONDATAW),
 		.hWnd = g_trayWindow,
-		.uID = 1,
+		.uID = trayIconId,
 		.uFlags = NIF_MESSAGE | NIF_ICON,
 		.uCallbackMessage = static_cast<UINT>(Notification::ToggleTrayIcon),
 		.hIcon = LoadIconW(hInstance, MAKEINTRESOURCE(IDI_SMALL)),
 		.uVersion = NOTIFYICON_VERSION_4
 	};
 	
-	if (!Shell_NotifyIcon(NIM_ADD, &trayIconData))
+	if (!Shell_NotifyIconW(NIM_ADD, &trayIconData))
 	{
 		ShowFatalError(L"Failed to add a tray icon to the taskbar!");
 		return FALSE;
 	}
 
-	if (!Shell_NotifyIcon(NIM_SETVERSION, &trayIconData))
+	if (!Shell_NotifyIconW(NIM_SETVERSION, &trayIconData))
 	{
 		ShowFatalError(L"Apparently running on Windows earlier than Vista! This is not supported right now.");
 		return FALSE;
@@ -168,7 +168,7 @@ LRESULT CALLBACK TrayWindowProc(HWND window, UINT message, WPARAM wParam, LPARAM
 
 						case MenuItemData::Type::ExitButton:
 						{
-							PostQuitMessage(0);
+							DestroyWindow(g_trayWindow);
 							break;
 						}
 					}
@@ -182,6 +182,23 @@ LRESULT CALLBACK TrayWindowProc(HWND window, UINT message, WPARAM wParam, LPARAM
 				}
 			}
 
+			break;
+		}
+
+		case WM_DESTROY:
+		{
+			NOTIFYICONDATAW trayIconData{
+				.cbSize = sizeof(NOTIFYICONDATAW),
+				.hWnd = g_trayWindow,
+				.uID = trayIconId
+			};
+
+			Shell_NotifyIconW(NIM_DELETE, &trayIconData);
+
+			delete g_audioDeviceManager;
+			delete g_popupMenu;
+
+			//PostQuitMessage(0);
 			break;
 		}
 

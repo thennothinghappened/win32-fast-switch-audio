@@ -21,6 +21,8 @@ namespace Audio
 		 */
 		DeviceManager(const OnChange onChange, const OnFatalError onFatalError);
 
+		~DeviceManager();
+
 		/**
 		 * @brief Refreshes the list of audio devices.
 		 * @return An error, if one occurred during the operation.
@@ -84,12 +86,13 @@ namespace Audio
 			ULONG __stdcall Release();
 
 		private:
+			ULONG refCount = 1;
 			DeviceManager* deviceManager;
 		};
 
 		IPolicyConfig* policyConfig;
 		IMMDeviceEnumerator* deviceEnumerator;
-		NotificationClient notificationClient = NotificationClient(this);
+		IMMNotificationClient* notificationClient = new NotificationClient(this);
 
 		const OnChange onChange;
 		const OnFatalError onFatalError;

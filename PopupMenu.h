@@ -19,6 +19,11 @@ namespace UI
 		PopupMenu(HWND owner, HMENU menu) 
 			: owner(owner), menu(menu) {}
 
+		~PopupMenu()
+		{
+			DestroyMenu(menu);
+		}
+
 		/**
 		 * @brief Append a new item to the end of the item list.
 		 * @param item The item to append.
