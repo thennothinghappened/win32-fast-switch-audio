@@ -6,6 +6,11 @@ using namespace Audio;
 DeviceManager::DeviceManager(const OnChange onChange, const OnFatalError onFatalError)
 	: onChange(onChange), onFatalError(onFatalError)
 {
+	if (FAILED(CoCreateInstance(__uuidof(CPolicyConfigClient), NULL, CLSCTX_ALL, IID_PPV_ARGS(&policyConfig))))
+	{
+		throw Error{ L"Failed to get a IPolicyConfig instance, so we cannot actually set the default device" };
+	}
+
 	if (FAILED(CoCreateInstance(__uuidof(MMDeviceEnumerator), NULL, CLSCTX_ALL, IID_PPV_ARGS(&deviceEnumerator))))
 	{
 		throw Error{ L"Failed to get an audio device enumerator instance" };
@@ -108,4 +113,21 @@ const Device& DeviceManager::getDefault(ERole role) const
 	CoTaskMemFree(win32Id);
 
 	return this->operator[](id);
+}
+
+std::optional<Error> Audio::DeviceManager::setDefault(const Device& device)
+{
+	return setDefault(device.id);
+}
+
+std::optional<Error> Audio::DeviceManager::setDefault(Device::Id id)
+{
+	if (SUCCEEDED(policyConfig->SetDefaultEndpoint(id.data(), eConsole))
+		&& SUCCEEDED(policyConfig->SetDefaultEndpoint(id.data(), eMultimedia))
+		&& SUCCEEDED(policyConfig->SetDefaultEndpoint(id.data(), eCommunications)))
+	{
+		return std::nullopt;
+	}
+	
+	return Error{ std::format(L"Failed to set the default device to {} for mysterious reasons unknown", id) };
 }

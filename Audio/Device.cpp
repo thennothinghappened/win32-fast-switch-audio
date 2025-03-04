@@ -44,13 +44,3 @@ const std::wstring Device::getName() const
 	return name;
 
 }
-
-void Device::setAsDefault()
-{
-	CComPtr<IPolicyConfig> policyConfig;
-	policyConfig.CoCreateInstance(__uuidof(CPolicyConfigClient), NULL, CLSCTX_ALL); // TODO: error handling
-
-	policyConfig->SetDefaultEndpoint(id.data(), eConsole);
-	policyConfig->SetDefaultEndpoint(id.data(), eMultimedia);
-	policyConfig->SetDefaultEndpoint(id.data(), eCommunications);
-}

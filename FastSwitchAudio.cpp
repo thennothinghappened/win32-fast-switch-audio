@@ -150,8 +150,7 @@ LRESULT CALLBACK TrayWindowProc(HWND window, UINT message, WPARAM wParam, LPARAM
 						case MenuItemData::Type::AudioDevice:
 						{
 							Audio::Device::Id deviceId = item.audioDeviceId.value();
-							Audio::Device& device = g_audioDeviceManager->operator[](deviceId);
-							device.setAsDefault();
+							g_audioDeviceManager->setDefault(deviceId);
 
 							break;
 						}

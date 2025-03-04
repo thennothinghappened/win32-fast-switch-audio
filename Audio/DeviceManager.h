@@ -48,6 +48,18 @@ namespace Audio
 		 */
 		const Device& getDefault(ERole role) const;
 
+		/**
+		 * @brief Sets the default audio device for all roles.
+		 * @param device The device to set as the default.
+		 */
+		std::optional<Error> setDefault(const Device& device);
+
+		/**
+		 * @brief Sets the default audio device for all roles.
+		 * @param id The ID of the device to be the default.
+		 */
+		std::optional<Error> setDefault(Device::Id id);
+
 		std::vector<Device> devices;
 
 	private:
@@ -75,7 +87,8 @@ namespace Audio
 			DeviceManager* deviceManager;
 		};
 
-		IMMDeviceEnumerator* deviceEnumerator = NULL;
+		IPolicyConfig* policyConfig;
+		IMMDeviceEnumerator* deviceEnumerator;
 		NotificationClient notificationClient = NotificationClient(this);
 
 		const OnChange onChange;
