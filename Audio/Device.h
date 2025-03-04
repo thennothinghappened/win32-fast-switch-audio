@@ -21,6 +21,10 @@ namespace Audio
 		~Device();
 
 		const std::wstring getName() const;
+
+		/**
+		 * @brief Sets this as the default device for all roles.
+		 */
 		void setAsDefault();
 
 		Id id;

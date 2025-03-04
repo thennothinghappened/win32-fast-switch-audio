@@ -3,26 +3,28 @@
 
 using namespace Audio;
 
-const std::optional<Error> DeviceManager::refresh()
+DeviceManager::DeviceManager(const OnChange onChange, const OnFatalError onFatalError)
+	: onChange(onChange), onFatalError(onFatalError)
 {
-	devices.clear();
-
-	if (deviceEnumerator == NULL)
+	if (FAILED(CoCreateInstance(__uuidof(MMDeviceEnumerator), NULL, CLSCTX_ALL, IID_PPV_ARGS(&deviceEnumerator))))
 	{
-		if (FAILED(CoCreateInstance(__uuidof(MMDeviceEnumerator), NULL, CLSCTX_ALL, IID_PPV_ARGS(&deviceEnumerator))))
-		{
-			return Error{ L"Failed to get an audio device enumerator instance" };
-		}
+		throw Error{ L"Failed to get an audio device enumerator instance" };
 	}
 
+	deviceEnumerator->RegisterEndpointNotificationCallback(&notificationClient);
+}
+
+const std::optional<Error> DeviceManager::refresh()
+{
 	CComPtr<IMMDeviceCollection> mmOutputs;
+	devices.clear();
 
 	if (FAILED(deviceEnumerator->EnumAudioEndpoints(eRender, DEVICE_STATE_ACTIVE, &mmOutputs)))
 	{
 		return Error{ L"Failed to retrieve list of audio output devices" };
 	}
 
-	uint32_t outputCount;
+	UINT outputCount;
 
 	if (FAILED(mmOutputs->GetCount(&outputCount)))
 	{
@@ -31,9 +33,8 @@ const std::optional<Error> DeviceManager::refresh()
 
 	devices.reserve(outputCount);
 
-	for (uint32_t i = 0; i < outputCount; i++)
+	for (UINT i = 0; i < outputCount; i++)
 	{
-
 		IMMDevice* mmDevice;
 		IPropertyStore* propertyStore;
 
@@ -63,14 +64,26 @@ const std::optional<Error> DeviceManager::refresh()
 		// Release our references, since the device adds one.
 		mmDevice->Release();
 		propertyStore->Release();
-
 	}
 
+	onChange();
 	return std::nullopt;
-
 }
 
-Device& Audio::DeviceManager::operator[](Device::Id id)
+const Device& DeviceManager::operator[](Device::Id id) const
+{
+	for (const Device& device : devices)
+	{
+		if (device.id == id)
+		{
+			return device;
+		}
+	}
+
+	throw std::logic_error("Couldn't find the device associated with the provided ID");
+}
+
+Device& DeviceManager::operator[](Device::Id id)
 {
 	for (Device& device : devices)
 	{
@@ -83,26 +96,16 @@ Device& Audio::DeviceManager::operator[](Device::Id id)
 	throw std::logic_error("Couldn't find the device associated with the provided ID");
 }
 
-Device& DeviceManager::getDefault()
+const Device& DeviceManager::getDefault(ERole role) const
 {
 	CComPtr<IMMDevice> mmDevice;
-	deviceEnumerator->GetDefaultAudioEndpoint(eRender, eConsole, &mmDevice); // TODO: error handling.
+	deviceEnumerator->GetDefaultAudioEndpoint(eRender, role, &mmDevice); // TODO: error handling.
 
 	wchar_t* win32Id;
 	mmDevice->GetId(&win32Id); // TODO: error handling.
 	
-	std::wstring id = win32Id;
+	Device::Id id = win32Id;
 	CoTaskMemFree(win32Id);
 
-	for (Device& device : devices)
-	{
-		if (device.id == id)
-		{
-			return device;
-		}
-	}
-
-	// FIXME: We really should subscribe to changes to make this situation impossible rather than explicit `refresh()`.
-	throw std::logic_error("Couldn't find a match for the default device!");
-
+	return this->operator[](id);
 }

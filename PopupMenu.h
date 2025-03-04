@@ -23,14 +23,26 @@ namespace UI
 		 * @brief Append a new item to the end of the item list.
 		 * @param item The item to append.
 		 * @param label A label displayed for the item.
+		 * @param checked Whether the item has a checkmark beside it. TODO: refactor this.
 		 */
-		void append(ITEM item, std::wstring label)
+		void append(ITEM item, std::wstring label, bool checked = false)
 		{
 			UINT id = nextId;
 			nextId++;
 
 			items.insert({ id, item });
 			AppendMenuW(menu, MF_ENABLED | MF_STRING, id, label.data());
+
+			if (checked)
+			{
+				MENUITEMINFOW itemInfo{
+					.cbSize = sizeof(MENUITEMINFOW),
+					.fMask = MIIM_STATE,
+					.fState = MFS_CHECKED
+				};
+
+				SetMenuItemInfoW(menu, id, FALSE, &itemInfo);
+			}
 		}
 
 		/**

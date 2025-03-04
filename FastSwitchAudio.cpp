@@ -10,7 +10,6 @@ int APIENTRY wWinMain(
 	_In_ int showWindowMode
 )
 {
-	
 	if (FAILED(CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE)))
 	{
 		ShowFatalError(L"COM failed to initialise, which we need for querying devices!");
@@ -53,16 +52,13 @@ int APIENTRY wWinMain(
 	}
 
 	g_popupMenu = new UI::PopupMenu<MenuItemData>(g_trayWindow, popupMenuHandle);
+	g_audioDeviceManager = new Audio::DeviceManager(RefreshPopupMenu, ShowFatalError);
 
-	if (auto maybeError = g_audioDeviceManager.refresh())
+	if (auto error = g_audioDeviceManager->refresh())
 	{
-		Audio::Error error = maybeError.value();
-		ShowFatalError(error.explanation);
-
+		ShowFatalError(error->explanation);
 		return FALSE;
 	}
-
-	RefreshPopupMenu();
 
 	NOTIFYICONDATA trayIconData{
 		.cbSize = sizeof(NOTIFYICONDATA),
@@ -105,13 +101,21 @@ void RefreshPopupMenu()
 {
 	g_popupMenu->clear();
 
-	for (const Audio::Device& device : g_audioDeviceManager.devices)
+	const Audio::Device& defaultConsoleDevice = g_audioDeviceManager->getDefault(eConsole);
+	const Audio::Device& defaultMediaDevice = g_audioDeviceManager->getDefault(eMultimedia);
+	const Audio::Device& defaultCommsDevice = g_audioDeviceManager->getDefault(eCommunications);
+
+	for (const Audio::Device& device : g_audioDeviceManager->devices)
 	{
+		bool isDefault = (device.id == defaultConsoleDevice.id)
+			|| (device.id == defaultMediaDevice.id)
+			|| (device.id == defaultCommsDevice.id);
+
 		std::wstring label = std::wstring(device.getName());
 
 		// TODO: C++ may be sneakily doing the whole copy constructor business here, I haven't checked though.
-		g_popupMenu->append(MenuItemData::device(device.id), label);
-	}
+		g_popupMenu->append(MenuItemData::device(device.id), label, isDefault);
+	} 
 
 	g_popupMenu->appendSeparator();
 	g_popupMenu->append(MenuItemData::button(MenuItemData::Type::RefreshButton), L"Refresh");
@@ -146,24 +150,20 @@ LRESULT CALLBACK TrayWindowProc(HWND window, UINT message, WPARAM wParam, LPARAM
 						case MenuItemData::Type::AudioDevice:
 						{
 							Audio::Device::Id deviceId = item.audioDeviceId.value();
-							Audio::Device& device = g_audioDeviceManager[deviceId];
-
+							Audio::Device& device = g_audioDeviceManager->operator[](deviceId);
 							device.setAsDefault();
+
 							break;
 						}
 
 						case MenuItemData::Type::RefreshButton:
 						{
-							if (auto maybeError = g_audioDeviceManager.refresh())
+							if (auto error = g_audioDeviceManager->refresh())
 							{
-								Audio::Error error = maybeError.value();
-								ShowFatalError(error.explanation);
-
-								PostQuitMessage(1);
+								ShowFatalError(error->explanation);
 								break;
 							}
 
-							RefreshPopupMenu();
 							break;
 						}
 

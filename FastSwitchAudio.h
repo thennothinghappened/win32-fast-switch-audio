@@ -12,6 +12,7 @@
 #include "Audio/Audio.h"
 #include "Audio/DeviceManager.h"
 #include "PopupMenu.h"
+#include "utils.h"
 
 #pragma comment(lib, "comctl32")
 #pragma comment(lib, "uxtheme")
@@ -75,17 +76,8 @@ constexpr UINT maxLoadString = 128;
 static WCHAR g_trayWindowClassName[maxLoadString];
 static HWND g_trayWindow;
 
-static Audio::DeviceManager g_audioDeviceManager;
+static Audio::DeviceManager* g_audioDeviceManager;
 static UI::PopupMenu<MenuItemData>* g_popupMenu;
-
-/**
- * @brief Show a fatal error message box if something went wrong we cannot recover from.
- * @param message The message to be shown.
- */
-static void ShowFatalError(const std::wstring message)
-{
-	MessageBoxW(NULL, message.c_str(), L"Fatal Error", MB_OK | MB_ICONERROR);
-}
 
 /**
  * @brief Refresh the contents of the popup menu for changes in the device list.
