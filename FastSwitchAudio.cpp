@@ -115,7 +115,7 @@ void RefreshPopupMenu()
 
 		// TODO: C++ may be sneakily doing the whole copy constructor business here, I haven't checked though.
 		g_popupMenu->append(MenuItemData::device(device.id), label, isDefault);
-	} 
+	}
 
 	g_popupMenu->appendSeparator();
 	g_popupMenu->append(MenuItemData::button(MenuItemData::Type::RefreshButton), L"Refresh");
