@@ -65,8 +65,15 @@ struct MenuItemData
 
 enum class Notification : UINT
 {
-	ToggleTrayIcon = (WM_USER + 0x100)
+	ToggleTrayIcon = (WM_USER + 0x100),
+	RefreshItems
 };
+
+/**
+ * @brief Whether we're currently planning to refresh the item list.
+ * TODO: this is more hackiness, the globals are getting crazy!
+ */
+static bool g_awaitingRefresh = false;
 
 /**
  * @brief Maximum size we're allocating for strings when using `LoadStringW`.
@@ -85,7 +92,7 @@ static Audio::DeviceManager* g_audioDeviceManager;
 static UI::PopupMenu<MenuItemData>* g_popupMenu;
 
 /**
- * @brief Refresh the contents of the popup menu for changes in the device list.
+ * @brief Request a refresh the contents of the popup menu for changes in the device list.
  * Ideally, we'd only change what needs changing, but this is the lazy way out for now.
  */
 static void RefreshPopupMenu();

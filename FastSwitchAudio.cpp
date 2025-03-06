@@ -52,7 +52,14 @@ int APIENTRY wWinMain(
 	}
 	
 	g_popupMenu = new UI::PopupMenu<MenuItemData>(g_trayWindow, popupMenuHandle);
-	g_audioDeviceManager = new Audio::DeviceManager(RefreshPopupMenu, ShowFatalError);
+	g_audioDeviceManager = new Audio::DeviceManager([]
+	{
+		if (!g_awaitingRefresh)
+		{
+			g_awaitingRefresh = true;
+			PostMessageW(g_trayWindow, static_cast<UINT>(Notification::RefreshItems), 0, 0);
+		}
+	}, ShowFatalError);
 
 	if (auto error = g_audioDeviceManager->refresh())
 	{
@@ -181,6 +188,14 @@ LRESULT CALLBACK TrayWindowProc(HWND window, UINT message, WPARAM wParam, LPARAM
 					return DefWindowProcW(window, message, wParam, lParam);
 				}
 			}
+
+			break;
+		}
+
+		case static_cast<UINT>(Notification::RefreshItems):
+		{
+			RefreshPopupMenu();
+			g_awaitingRefresh = false;
 
 			break;
 		}
