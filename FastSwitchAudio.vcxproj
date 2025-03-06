@@ -144,6 +144,7 @@
     <ClInclude Include="Audio\Audio.h" />
     <ClInclude Include="Audio\Device.h" />
     <ClInclude Include="Audio\DeviceManager.h" />
+    <ClInclude Include="ComPtr.h" />
     <ClInclude Include="FastSwitchAudio.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="PolicyConfig.h" />

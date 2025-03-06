@@ -1,5 +1,6 @@
 
 #include "DeviceManager.h"
+#include "../ComPtr.h"
 
 using namespace Audio;
 
@@ -31,7 +32,7 @@ Audio::DeviceManager::~DeviceManager()
 
 const std::optional<Error> DeviceManager::refresh()
 {
-	CComPtr<IMMDeviceCollection> mmOutputs;
+	ComPtr<IMMDeviceCollection> mmOutputs;
 	devices.clear();
 
 	if (FAILED(deviceEnumerator->EnumAudioEndpoints(eRender, DEVICE_STATE_ACTIVE, &mmOutputs)))
@@ -113,8 +114,18 @@ Device& DeviceManager::operator[](Device::Id id)
 
 const Device& DeviceManager::getDefault(ERole role) const
 {
-	CComPtr<IMMDevice> mmDevice;
-	deviceEnumerator->GetDefaultAudioEndpoint(eRender, role, &mmDevice); // TODO: error handling.
+	ComPtr<IMMDevice> mmDevice;
+	HRESULT hr = deviceEnumerator->GetDefaultAudioEndpoint(eRender, role, &mmDevice);
+
+	if (FAILED(hr))
+	{
+		if (hr == E_NOTFOUND)
+		{
+			return NULL;
+		}
+
+		throw Error{ std::format(L"Error in querying the default audio device: {}", hr) };
+	}
 
 	wchar_t* win32Id;
 	mmDevice->GetId(&win32Id); // TODO: error handling.
