@@ -198,7 +198,7 @@ LRESULT CALLBACK TrayWindowProc(HWND window, UINT message, WPARAM wParam, LPARAM
 			delete g_audioDeviceManager;
 			delete g_popupMenu;
 
-			//PostQuitMessage(0);
+			PostQuitMessage(0);
 			break;
 		}
 
