@@ -20,7 +20,7 @@ int APIENTRY wWinMain(
 
 	const WNDCLASSEXW windowClass
 	{
-		.cbSize = sizeof(WNDCLASSEX),
+		.cbSize = sizeof(WNDCLASSEXW),
 		.lpfnWndProc = TrayWindowProc,
 		.hInstance = hInstance,
 		.hIcon = LoadIconW(hInstance, MAKEINTRESOURCE(IDI_FASTSWITCHAUDIO)),
