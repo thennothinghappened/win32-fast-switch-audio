@@ -46,9 +46,9 @@ namespace Audio
 
 		/**
 		 * @brief Gets the audio device that's been set as the default.
-		 * @return The default audio device.
+		 * @return The default audio device, or null if there is none for this role.
 		 */
-		const Device& getDefault(ERole role) const;
+		const Device* getDefault(ERole role) const;
 
 		/**
 		 * @brief Sets the default audio device for all roles.

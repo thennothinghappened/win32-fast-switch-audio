@@ -108,15 +108,31 @@ void RefreshPopupMenu()
 {
 	g_popupMenu->clear();
 
-	const Audio::Device& defaultConsoleDevice = g_audioDeviceManager->getDefault(eConsole);
-	const Audio::Device& defaultMediaDevice = g_audioDeviceManager->getDefault(eMultimedia);
-	const Audio::Device& defaultCommsDevice = g_audioDeviceManager->getDefault(eCommunications);
+	std::array<const Audio::Device*, 3> defaultDevices {
+		g_audioDeviceManager->getDefault(eConsole),
+		g_audioDeviceManager->getDefault(eMultimedia),
+		g_audioDeviceManager->getDefault(eCommunications)
+	};
 
 	for (const Audio::Device& device : g_audioDeviceManager->devices)
 	{
-		bool isDefault = (device.id == defaultConsoleDevice.id)
-			|| (device.id == defaultMediaDevice.id)
-			|| (device.id == defaultCommsDevice.id);
+		bool isDefault = false;
+
+		for (const Audio::Device* defaultDevice : defaultDevices)
+		{
+			if (defaultDevice == NULL)
+			{
+				continue;
+			}
+
+			if (defaultDevice->id != device.id)
+			{
+				continue;
+			}
+
+			isDefault = true;
+			break;
+		}
 
 		std::wstring label = std::wstring(device.getName());
 

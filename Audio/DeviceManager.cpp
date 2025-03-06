@@ -112,7 +112,7 @@ Device& DeviceManager::operator[](Device::Id id)
 	throw std::logic_error("Couldn't find the device associated with the provided ID");
 }
 
-const Device& DeviceManager::getDefault(ERole role) const
+const Device* DeviceManager::getDefault(ERole role) const
 {
 	ComPtr<IMMDevice> mmDevice;
 	HRESULT hr = deviceEnumerator->GetDefaultAudioEndpoint(eRender, role, &mmDevice);
@@ -133,7 +133,7 @@ const Device& DeviceManager::getDefault(ERole role) const
 	Device::Id id = win32Id;
 	CoTaskMemFree(win32Id);
 
-	return this->operator[](id);
+	return &this->operator[](id);
 }
 
 std::optional<Error> Audio::DeviceManager::setDefault(const Device& device)
