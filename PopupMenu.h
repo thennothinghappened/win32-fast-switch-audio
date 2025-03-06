@@ -10,13 +10,11 @@
 
 namespace UI
 {
-
 	template<typename ITEM>
 	class PopupMenu
 	{
 	public:
-	
-		PopupMenu(HWND owner, HMENU menu) 
+		PopupMenu(HWND owner, HMENU menu)
 			: owner(owner), menu(menu) {}
 
 		~PopupMenu()
@@ -40,7 +38,7 @@ namespace UI
 
 			if (checked)
 			{
-				MENUITEMINFOW itemInfo{
+				MENUITEMINFOW itemInfo {
 					.cbSize = sizeof(MENUITEMINFOW),
 					.fMask = MIIM_STATE,
 					.fState = MFS_CHECKED
@@ -82,11 +80,14 @@ namespace UI
 		 */
 		std::optional<ITEM> track(POINT position) const
 		{
-			const UINT id = TrackPopupMenu(menu,
+			const UINT id = TrackPopupMenu(
+				menu,
 				TPM_LEFTALIGN | TPM_LEFTBUTTON | TPM_RIGHTBUTTON | TPM_RETURNCMD,
 				position.x,
 				position.y,
-				0, owner, nullptr
+				0,
+				owner,
+				nullptr
 			);
 
 			if (id == 0)
@@ -104,7 +105,6 @@ namespace UI
 		}
 
 	private:
-
 		const HMENU menu;
 		const HWND owner;
 
@@ -122,7 +122,5 @@ namespace UI
 		 * @brief Menu items in the popup context menu, associated with IDs.
 		 */
 		std::unordered_map<UINT, ITEM> items;
-
 	};
-
 };

@@ -14,5 +14,4 @@ namespace Audio
 	{
 		std::wstring explanation;
 	};
-
 };

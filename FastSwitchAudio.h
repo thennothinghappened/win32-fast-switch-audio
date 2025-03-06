@@ -1,11 +1,9 @@
 #pragma once
 
-#include "resource.h"
 #include "framework.h"
 #include <optional>
 #include <cstdint>
 #include <format>
-#include <vector>
 #include <ranges>
 #include <windowsx.h>
 #include <shellapi.h>
@@ -27,7 +25,6 @@
 
 struct MenuItemData
 {
-
 	enum class Type
 	{
 		AudioDevice,
@@ -47,7 +44,7 @@ struct MenuItemData
 
 	static MenuItemData device(Audio::Device::Id deviceId)
 	{
-		return MenuItemData{
+		return MenuItemData {
 			.type = Type::AudioDevice,
 			.audioDeviceId = deviceId
 		};
@@ -55,12 +52,11 @@ struct MenuItemData
 
 	static MenuItemData button(Type type)
 	{
-		return MenuItemData{
+		return MenuItemData {
 			.type = type,
 			.audioDeviceId = std::nullopt
 		};
 	}
-
 };
 
 enum class Notification : UINT

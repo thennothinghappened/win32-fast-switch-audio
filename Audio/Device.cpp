@@ -29,7 +29,6 @@ Device::~Device()
 
 const std::wstring Device::getName() const
 {
-
 	PROPVARIANT shortName;
 	PROPVARIANT longName;
 

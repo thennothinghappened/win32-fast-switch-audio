@@ -65,7 +65,6 @@ namespace Audio
 		std::vector<Device> devices;
 
 	private:
-
 		/**
 		 * @brief Client to notify us of any changes to audio devices,
 		 * we wrap this into a nicer interface for the consumer that uses our `Device` type.
@@ -77,12 +76,19 @@ namespace Audio
 				: deviceManager(deviceManager) {}
 
 			HRESULT __stdcall OnDeviceStateChanged(LPCWSTR pwstrDeviceId, DWORD dwNewState);
+
 			HRESULT __stdcall OnDeviceAdded(LPCWSTR pwstrDeviceId);
+
 			HRESULT __stdcall OnDeviceRemoved(LPCWSTR pwstrDeviceId);
+
 			HRESULT __stdcall OnDefaultDeviceChanged(EDataFlow flow, ERole role, LPCWSTR pwstrDefaultDeviceId);
+
 			HRESULT __stdcall OnPropertyValueChanged(LPCWSTR pwstrDeviceId, const PROPERTYKEY key);
+
 			HRESULT __stdcall QueryInterface(REFIID riid, void** ppvObject);
+
 			ULONG __stdcall AddRef();
+
 			ULONG __stdcall Release();
 
 		private:
@@ -96,6 +102,5 @@ namespace Audio
 
 		const OnChange onChange;
 		const OnFatalError onFatalError;
-
 	};
 };

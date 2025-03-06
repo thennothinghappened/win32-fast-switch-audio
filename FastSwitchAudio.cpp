@@ -1,7 +1,9 @@
 // FastSwitchAudio.cpp : Defines the entry point for the application.
 //
 
+#include <vector>
 #include "FastSwitchAudio.h"
+#include "resource.h"
 
 int APIENTRY wWinMain(
 	_In_ HINSTANCE hInstance,
@@ -15,7 +17,7 @@ int APIENTRY wWinMain(
 		ShowFatalError(L"COM failed to initialise, which we need for querying devices!");
 		return FALSE;
 	}
-	
+
 	LoadStringW(hInstance, IDC_FASTSWITCHAUDIO, g_trayWindowClassName, maxLoadString);
 
 	const WNDCLASSEXW windowClass
@@ -31,9 +33,19 @@ int APIENTRY wWinMain(
 
 	RegisterClassExW(&windowClass);
 
-	g_trayWindow = CreateWindowExW(WS_EX_TOPMOST | WS_EX_TOOLWINDOW,
-		g_trayWindowClassName, L"", WS_POPUP,
-		0, 0, 0, 0, nullptr, nullptr, hInstance, nullptr
+	g_trayWindow = CreateWindowExW(
+		WS_EX_TOPMOST | WS_EX_TOOLWINDOW,
+		g_trayWindowClassName,
+		L"",
+		WS_POPUP,
+		0,
+		0,
+		0,
+		0,
+		nullptr,
+		nullptr,
+		hInstance,
+		nullptr
 	);
 
 	if (g_trayWindow == nullptr)
@@ -49,7 +61,7 @@ int APIENTRY wWinMain(
 		ShowFatalError(L"Failed to create a popup context menu!");
 		return FALSE;
 	}
-	
+
 	g_popupMenu = new UI::PopupMenu<MenuItemData>(g_trayWindow, popupMenuHandle);
 	g_audioDeviceManager = new Audio::DeviceManager(RefreshPopupMenu, ShowFatalError);
 
@@ -59,7 +71,7 @@ int APIENTRY wWinMain(
 		return FALSE;
 	}
 
-	NOTIFYICONDATAW trayIconData{
+	NOTIFYICONDATAW trayIconData {
 		.cbSize = sizeof(NOTIFYICONDATAW),
 		.hWnd = g_trayWindow,
 		.uID = trayIconId,
@@ -68,7 +80,7 @@ int APIENTRY wWinMain(
 		.hIcon = LoadIconW(hInstance, MAKEINTRESOURCE(IDI_SMALL)),
 		.uVersion = NOTIFYICON_VERSION_4
 	};
-	
+
 	if (!Shell_NotifyIconW(NIM_ADD, &trayIconData))
 	{
 		ShowFatalError(L"Failed to add a tray icon to the taskbar!");
@@ -80,7 +92,7 @@ int APIENTRY wWinMain(
 		ShowFatalError(L"Apparently running on Windows earlier than Vista! This is not supported right now.");
 		return FALSE;
 	}
-	
+
 	HACCEL acceleratorTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_FASTSWITCHAUDIO));
 	MSG msg;
 
@@ -93,7 +105,7 @@ int APIENTRY wWinMain(
 		}
 	}
 
-	return (int)msg.wParam;
+	return (int) msg.wParam;
 }
 
 void RefreshPopupMenu()
@@ -107,8 +119,8 @@ void RefreshPopupMenu()
 	for (const Audio::Device& device : g_audioDeviceManager->devices)
 	{
 		bool isDefault = (device.id == defaultConsoleDevice.id)
-			|| (device.id == defaultMediaDevice.id)
-			|| (device.id == defaultCommsDevice.id);
+		                 || (device.id == defaultMediaDevice.id)
+		                 || (device.id == defaultCommsDevice.id);
 
 		std::wstring label = std::wstring(device.getName());
 
@@ -186,7 +198,7 @@ LRESULT CALLBACK TrayWindowProc(HWND window, UINT message, WPARAM wParam, LPARAM
 
 		case WM_DESTROY:
 		{
-			NOTIFYICONDATAW trayIconData{
+			NOTIFYICONDATAW trayIconData {
 				.cbSize = sizeof(NOTIFYICONDATAW),
 				.hWnd = g_trayWindow,
 				.uID = trayIconId
@@ -205,7 +217,6 @@ LRESULT CALLBACK TrayWindowProc(HWND window, UINT message, WPARAM wParam, LPARAM
 		{
 			return DefWindowProcW(window, message, wParam, lParam);
 		}
-
 	}
 
 	return 0;

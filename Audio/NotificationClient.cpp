@@ -33,7 +33,11 @@ HRESULT __stdcall DeviceManager::NotificationClient::OnDeviceRemoved(LPCWSTR pws
 	return S_OK;
 }
 
-HRESULT __stdcall DeviceManager::NotificationClient::OnDefaultDeviceChanged(EDataFlow flow, ERole role, LPCWSTR pwstrDefaultDeviceId)
+HRESULT __stdcall DeviceManager::NotificationClient::OnDefaultDeviceChanged(
+	EDataFlow flow,
+	ERole role,
+	LPCWSTR pwstrDefaultDeviceId
+)
 {
 	if (auto maybeError = deviceManager->refresh())
 	{
@@ -43,7 +47,10 @@ HRESULT __stdcall DeviceManager::NotificationClient::OnDefaultDeviceChanged(EDat
 	return S_OK;
 }
 
-HRESULT __stdcall DeviceManager::NotificationClient::OnPropertyValueChanged(LPCWSTR pwstrDeviceId, const PROPERTYKEY key)
+HRESULT __stdcall DeviceManager::NotificationClient::OnPropertyValueChanged(
+	LPCWSTR pwstrDeviceId,
+	const PROPERTYKEY key
+)
 {
 	return S_OK;
 }

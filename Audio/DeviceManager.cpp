@@ -10,12 +10,12 @@ DeviceManager::DeviceManager(const OnChange onChange, const OnFatalError onFatal
 {
 	if (FAILED(CoCreateInstance(__uuidof(CPolicyConfigClient), nullptr, CLSCTX_ALL, IID_PPV_ARGS(&policyConfig))))
 	{
-		throw Error{ L"Failed to get a IPolicyConfig instance, so we cannot actually set the default device" };
+		throw Error { L"Failed to get a IPolicyConfig instance, so we cannot actually set the default device" };
 	}
 
 	if (FAILED(CoCreateInstance(__uuidof(MMDeviceEnumerator), nullptr, CLSCTX_ALL, IID_PPV_ARGS(&deviceEnumerator))))
 	{
-		throw Error{ L"Failed to get an audio device enumerator instance" };
+		throw Error { L"Failed to get an audio device enumerator instance" };
 	}
 
 	deviceEnumerator->RegisterEndpointNotificationCallback(notificationClient);
@@ -38,14 +38,14 @@ const std::optional<Error> DeviceManager::refresh()
 
 	if (FAILED(deviceEnumerator->EnumAudioEndpoints(eRender, DEVICE_STATE_ACTIVE, &mmOutputs)))
 	{
-		return Error{ L"Failed to retrieve list of audio output devices" };
+		return Error { L"Failed to retrieve list of audio output devices" };
 	}
 
 	UINT outputCount;
 
 	if (FAILED(mmOutputs->GetCount(&outputCount)))
 	{
-		return Error{ L"Failed to count # of audio output devices" };
+		return Error { L"Failed to count # of audio output devices" };
 	}
 
 	devices.reserve(outputCount);
@@ -57,14 +57,14 @@ const std::optional<Error> DeviceManager::refresh()
 
 		if (FAILED(mmOutputs->Item(i, &mmDevice)))
 		{
-			return Error{ std::format(L"Failed to retrieve the device at index {}", i) };
+			return Error { std::format(L"Failed to retrieve the device at index {}", i) };
 		}
 
 		wchar_t* win32Id;
 
 		if (FAILED(mmDevice->GetId(&win32Id)))
 		{
-			return Error{ std::format(L"Failed to retrieve ID of device at index {}", i) };
+			return Error { std::format(L"Failed to retrieve ID of device at index {}", i) };
 		}
 
 		std::wstring id = win32Id;
@@ -73,7 +73,7 @@ const std::optional<Error> DeviceManager::refresh()
 		if (FAILED(mmDevice->OpenPropertyStore(STGM_READ, &propertyStore)))
 		{
 			mmDevice->Release();
-			return Error{ std::format(L"Failed to open property store for device at index {}", i) };
+			return Error { std::format(L"Failed to open property store for device at index {}", i) };
 		}
 
 		devices.emplace_back(mmDevice, propertyStore, id);
@@ -120,7 +120,7 @@ const Device& DeviceManager::getDefault(ERole role) const
 
 	wchar_t* win32Id;
 	mmDevice->GetId(&win32Id); // TODO: error handling.
-	
+
 	Device::Id id = win32Id;
 	CoTaskMemFree(win32Id);
 
@@ -135,11 +135,11 @@ std::optional<Error> Audio::DeviceManager::setDefault(const Device& device)
 std::optional<Error> Audio::DeviceManager::setDefault(Device::Id id)
 {
 	if (SUCCEEDED(policyConfig->SetDefaultEndpoint(id.data(), eConsole))
-		&& SUCCEEDED(policyConfig->SetDefaultEndpoint(id.data(), eMultimedia))
-		&& SUCCEEDED(policyConfig->SetDefaultEndpoint(id.data(), eCommunications)))
+	    && SUCCEEDED(policyConfig->SetDefaultEndpoint(id.data(), eMultimedia))
+	    && SUCCEEDED(policyConfig->SetDefaultEndpoint(id.data(), eCommunications)))
 	{
 		return std::nullopt;
 	}
-	
-	return Error{ std::format(L"Failed to set the default device to {} for mysterious reasons unknown", id) };
+
+	return Error { std::format(L"Failed to set the default device to {} for mysterious reasons unknown", id) };
 }
