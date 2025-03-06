@@ -8,6 +8,7 @@ HRESULT __stdcall DeviceManager::NotificationClient::OnDeviceStateChanged(LPCWST
 	if (auto maybeError = deviceManager->refresh())
 	{
 		deviceManager->onFatalError(maybeError->explanation);
+		return E_UNEXPECTED;
 	}
 
 	return S_OK;
@@ -18,6 +19,7 @@ HRESULT __stdcall DeviceManager::NotificationClient::OnDeviceAdded(LPCWSTR pwstr
 	if (auto maybeError = deviceManager->refresh())
 	{
 		deviceManager->onFatalError(maybeError->explanation);
+		return E_UNEXPECTED;
 	}
 
 	return S_OK;
@@ -28,6 +30,7 @@ HRESULT __stdcall DeviceManager::NotificationClient::OnDeviceRemoved(LPCWSTR pws
 	if (auto maybeError = deviceManager->refresh())
 	{
 		deviceManager->onFatalError(maybeError->explanation);
+		return E_UNEXPECTED;
 	}
 
 	return S_OK;
@@ -38,6 +41,7 @@ HRESULT __stdcall DeviceManager::NotificationClient::OnDefaultDeviceChanged(EDat
 	if (auto maybeError = deviceManager->refresh())
 	{
 		deviceManager->onFatalError(maybeError->explanation);
+		return E_UNEXPECTED;
 	}
 
 	return S_OK;
