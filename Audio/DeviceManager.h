@@ -8,7 +8,7 @@
 
 namespace Audio
 {
-	class DeviceManager
+	class DeviceManager final
 	{
 	public:
 		using OnChange = std::function<void()>;
@@ -70,7 +70,7 @@ namespace Audio
 		 * @brief Client to notify us of any changes to audio devices,
 		 * we wrap this into a nicer interface for the consumer that uses our `Device` type.
 		 */
-		class NotificationClient : public IMMNotificationClient
+		class NotificationClient final : public IMMNotificationClient
 		{
 		public:
 			NotificationClient(DeviceManager* deviceManager)
