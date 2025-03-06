@@ -10,7 +10,7 @@ int APIENTRY wWinMain(
 	_In_ int showWindowMode
 )
 {
-	if (FAILED(CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE)))
+	if (FAILED(CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE)))
 	{
 		ShowFatalError(L"COM failed to initialise, which we need for querying devices!");
 		return FALSE;
@@ -33,10 +33,10 @@ int APIENTRY wWinMain(
 
 	g_trayWindow = CreateWindowExW(WS_EX_TOPMOST | WS_EX_TOOLWINDOW,
 		g_trayWindowClassName, L"", WS_POPUP,
-		0, 0, 0, 0, NULL, NULL, hInstance, NULL
+		0, 0, 0, 0, nullptr, nullptr, hInstance, nullptr
 	);
 
-	if (g_trayWindow == NULL)
+	if (g_trayWindow == nullptr)
 	{
 		ShowFatalError(L"Failed to create the tray window!");
 		return FALSE;
@@ -44,7 +44,7 @@ int APIENTRY wWinMain(
 
 	HMENU popupMenuHandle = CreatePopupMenu();
 
-	if (popupMenuHandle == NULL)
+	if (popupMenuHandle == nullptr)
 	{
 		ShowFatalError(L"Failed to create a popup context menu!");
 		return FALSE;
@@ -84,7 +84,7 @@ int APIENTRY wWinMain(
 	HACCEL acceleratorTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_FASTSWITCHAUDIO));
 	MSG msg;
 
-	while (GetMessageW(&msg, NULL, 0, 0))
+	while (GetMessageW(&msg, nullptr, 0, 0))
 	{
 		if (!TranslateAcceleratorW(msg.hwnd, acceleratorTable, &msg))
 		{

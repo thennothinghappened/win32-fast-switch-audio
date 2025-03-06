@@ -62,7 +62,7 @@ HRESULT __stdcall DeviceManager::NotificationClient::QueryInterface(REFIID riid,
 		goto success;
 	}
 
-	*ppvObject = NULL;
+	*ppvObject = nullptr;
 	return E_NOINTERFACE;
 
 success:

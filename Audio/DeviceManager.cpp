@@ -6,12 +6,12 @@ using namespace Audio;
 DeviceManager::DeviceManager(const OnChange onChange, const OnFatalError onFatalError)
 	: onChange(onChange), onFatalError(onFatalError)
 {
-	if (FAILED(CoCreateInstance(__uuidof(CPolicyConfigClient), NULL, CLSCTX_ALL, IID_PPV_ARGS(&policyConfig))))
+	if (FAILED(CoCreateInstance(__uuidof(CPolicyConfigClient), nullptr, CLSCTX_ALL, IID_PPV_ARGS(&policyConfig))))
 	{
 		throw Error{ L"Failed to get a IPolicyConfig instance, so we cannot actually set the default device" };
 	}
 
-	if (FAILED(CoCreateInstance(__uuidof(MMDeviceEnumerator), NULL, CLSCTX_ALL, IID_PPV_ARGS(&deviceEnumerator))))
+	if (FAILED(CoCreateInstance(__uuidof(MMDeviceEnumerator), nullptr, CLSCTX_ALL, IID_PPV_ARGS(&deviceEnumerator))))
 	{
 		throw Error{ L"Failed to get an audio device enumerator instance" };
 	}

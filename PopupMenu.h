@@ -58,7 +58,7 @@ namespace UI
 			UINT id = nextId;
 			nextId++;
 
-			AppendMenuW(menu, MF_SEPARATOR, id, NULL);
+			AppendMenuW(menu, MF_SEPARATOR, id, nullptr);
 		}
 
 		/**
@@ -86,7 +86,7 @@ namespace UI
 				TPM_LEFTALIGN | TPM_LEFTBUTTON | TPM_RIGHTBUTTON | TPM_RETURNCMD,
 				position.x,
 				position.y,
-				0, owner, NULL
+				0, owner, nullptr
 			);
 
 			if (id == 0)
