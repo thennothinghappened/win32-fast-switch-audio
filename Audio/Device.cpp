@@ -15,7 +15,6 @@ Device::Device(IMMDevice* mmDevice, IPropertyStore* propertyStore, std::wstring 
 Device::Device(Device&& device) noexcept
 	: id(device.id), mmDevice(device.mmDevice), propertyStore(device.propertyStore)
 {
-	OutputDebugStringW(std::format(L"Copying {}!\n", getName()).c_str());
 	mmDevice->AddRef();
 	propertyStore->AddRef();
 }
