@@ -5,6 +5,7 @@
 #include <optional>
 #include <cstdint>
 #include <format>
+#include <array>
 #include <vector>
 #include <ranges>
 #include <windowsx.h>
