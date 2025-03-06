@@ -2,7 +2,6 @@
 
 #include "../framework.h"
 #include <mmdeviceapi.h>
-#include <atlbase.h>
 #include <optional>
 #include <string>
 #include <format>
