@@ -1,6 +1,6 @@
 
+#include <format>
 #include "DeviceManager.h"
-
 #include "../ComPtr.h"
 
 using namespace Audio;

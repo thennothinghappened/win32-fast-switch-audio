@@ -2,15 +2,11 @@
 
 #include "framework.h"
 #include <optional>
-#include <cstdint>
 #include <format>
-#include <ranges>
 #include <windowsx.h>
 #include <shellapi.h>
-#include "Audio/Audio.h"
 #include "Audio/DeviceManager.h"
 #include "PopupMenu.h"
-#include "utils.h"
 
 #pragma comment(lib, "comctl32")
 #pragma comment(lib, "uxtheme")

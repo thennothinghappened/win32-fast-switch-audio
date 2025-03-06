@@ -1,5 +1,6 @@
 
 #include "Device.h"
+#include <format>
 #include <functiondiscoverykeys_devpkey.h>
 
 using namespace Audio;

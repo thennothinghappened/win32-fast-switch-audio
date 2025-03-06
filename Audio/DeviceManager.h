@@ -1,10 +1,14 @@
 
 #pragma once
 
-#include "Audio.h"
-#include "Device.h"
+#include "../framework.h"
 #include <vector>
 #include <functional>
+#include <optional>
+#include <mmdeviceapi.h>
+#include "../PolicyConfig.h"
+#include "Audio.h"
+#include "Device.h"
 
 namespace Audio
 {

@@ -2,8 +2,11 @@
 //
 
 #include <vector>
+#include <cstdint>
+#include <ranges>
 #include "FastSwitchAudio.h"
 #include "resource.h"
+#include "utils.h"
 
 int APIENTRY wWinMain(
 	_In_ HINSTANCE hInstance,
