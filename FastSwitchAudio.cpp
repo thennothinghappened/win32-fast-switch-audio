@@ -24,7 +24,6 @@ int APIENTRY wWinMain(
 		.lpfnWndProc = TrayWindowProc,
 		.hInstance = hInstance,
 		.hIcon = LoadIconW(hInstance, MAKEINTRESOURCE(IDI_FASTSWITCHAUDIO)),
-		.hbrBackground = (HBRUSH)(COLOR_WINDOWFRAME),
 		.lpszMenuName = MAKEINTRESOURCEW(IDC_FASTSWITCHAUDIO),
 		.lpszClassName = g_trayWindowClassName,
 		.hIconSm = LoadIconW(hInstance, MAKEINTRESOURCE(IDI_SMALL)),
