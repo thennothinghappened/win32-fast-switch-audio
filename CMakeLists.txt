@@ -5,6 +5,7 @@ set(CMAKE_CXX_STANDARD 20)
 
 add_definitions(-DUNICODE)
 add_definitions(-D_UNICODE)
+add_definitions(-DWIN32_LEAN_AND_MEAN)
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_definitions(-D_DEBUG)
