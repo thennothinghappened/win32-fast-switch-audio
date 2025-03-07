@@ -78,21 +78,21 @@ namespace Audio
 			NotificationClient(DeviceManager* deviceManager)
 				: deviceManager(deviceManager) {}
 
-			HRESULT __stdcall OnDeviceStateChanged(LPCWSTR pwstrDeviceId, DWORD dwNewState);
+			HRESULT __stdcall OnDeviceStateChanged(LPCWSTR pwstrDeviceId, DWORD dwNewState) override;
 
-			HRESULT __stdcall OnDeviceAdded(LPCWSTR pwstrDeviceId);
+			HRESULT __stdcall OnDeviceAdded(LPCWSTR pwstrDeviceId) override;
 
-			HRESULT __stdcall OnDeviceRemoved(LPCWSTR pwstrDeviceId);
+			HRESULT __stdcall OnDeviceRemoved(LPCWSTR pwstrDeviceId) override;
 
-			HRESULT __stdcall OnDefaultDeviceChanged(EDataFlow flow, ERole role, LPCWSTR pwstrDefaultDeviceId);
+			HRESULT __stdcall OnDefaultDeviceChanged(EDataFlow flow, ERole role, LPCWSTR pwstrDefaultDeviceId) override;
 
-			HRESULT __stdcall OnPropertyValueChanged(LPCWSTR pwstrDeviceId, const PROPERTYKEY key);
+			HRESULT __stdcall OnPropertyValueChanged(LPCWSTR pwstrDeviceId, const PROPERTYKEY key) override;
 
-			HRESULT __stdcall QueryInterface(REFIID riid, void** ppvObject);
+			HRESULT __stdcall QueryInterface(REFIID riid, void** ppvObject) override;
 
-			ULONG __stdcall AddRef();
+			ULONG __stdcall AddRef() override;
 
-			ULONG __stdcall Release();
+			ULONG __stdcall Release() override;
 
 		private:
 			ULONG refCount = 1;
