@@ -65,7 +65,7 @@ enum class Notification : UINT
 constexpr UINT maxLoadString = 128;
 
 /**
- * @brief Identifer for the tray icon we create.
+ * @brief Identifier for the tray icon we create.
  */
 constexpr UINT trayIconId = 1;
 
