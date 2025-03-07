@@ -3,7 +3,7 @@
 #define COMPTR_H
 
 #include "framework.h"
-#include <cstdint>
+
 #include <concepts>
 
 /**

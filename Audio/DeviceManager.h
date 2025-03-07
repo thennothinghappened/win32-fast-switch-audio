@@ -2,11 +2,9 @@
 #pragma once
 
 #include "../framework.h"
-#include <vector>
 #include <functional>
 #include <optional>
-#include <mmdeviceapi.h>
-#include "../PolicyConfig.h"
+#include <vector>
 #include "Audio.h"
 #include "Device.h"
 

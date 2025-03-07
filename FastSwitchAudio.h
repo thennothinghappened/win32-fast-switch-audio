@@ -1,12 +1,11 @@
 #pragma once
 
 #include "framework.h"
-#include <optional>
+
 #include <format>
-#include <windowsx.h>
-#include <shellapi.h>
-#include "Audio/DeviceManager.h"
+#include <optional>
 #include "PopupMenu.h"
+#include "Audio/DeviceManager.h"
 
 #pragma comment(lib, "comctl32")
 #pragma comment(lib, "uxtheme")

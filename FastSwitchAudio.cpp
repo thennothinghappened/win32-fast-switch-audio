@@ -1,10 +1,10 @@
 // FastSwitchAudio.cpp : Defines the entry point for the application.
 //
 
-#include <vector>
+#include "FastSwitchAudio.h"
 #include <cstdint>
 #include <ranges>
-#include "FastSwitchAudio.h"
+#include <vector>
 #include "resource.h"
 #include "utils.h"
 

@@ -1,7 +1,8 @@
 
 #pragma once
 
-#include <mmdeviceapi.h>
+#include "../framework.h"
+
 #include "Audio.h"
 
 namespace Audio
