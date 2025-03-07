@@ -19,19 +19,19 @@ public:
 	ComPtr()
 	{}
 
-	ComPtr(ComPtr& other)
+	ComPtr(const ComPtr& other)
 		: ptr(other.ptr)
 	{
-		if (ptr)
+		if (ptr != nullptr)
 		{
 			ptr->AddRef();
 		}
 	}
 
-	ComPtr(ComPtr&& other)
+	ComPtr(ComPtr&& other) noexcept
 		: ptr(other.ptr)
 	{
-		if (ptr)
+		if (ptr != nullptr)
 		{
 			ptr->AddRef();
 		}
@@ -39,7 +39,7 @@ public:
 
 	~ComPtr()
 	{
-		if (ptr)
+		if (ptr != nullptr)
 		{
 			ptr->Release();
 		}

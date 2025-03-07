@@ -13,8 +13,8 @@ namespace UI
 	class PopupMenu
 	{
 	public:
-		PopupMenu(HWND owner, HMENU menu)
-			: owner(owner), menu(menu) {}
+		PopupMenu(const HWND owner, const HMENU menu)
+			: menu(menu), owner(owner) {}
 
 		~PopupMenu()
 		{
@@ -27,7 +27,7 @@ namespace UI
 		 * @param label A label displayed for the item.
 		 * @param checked Whether the item has a checkmark beside it. TODO: refactor this.
 		 */
-		void append(ITEM item, std::wstring label, bool checked = false)
+		void append(ITEM item, const std::wstring& label, const bool checked = false)
 		{
 			UINT id = nextId;
 			nextId++;
@@ -37,7 +37,7 @@ namespace UI
 
 			if (checked)
 			{
-				MENUITEMINFOW itemInfo {
+				constexpr MENUITEMINFOW itemInfo {
 					.cbSize = sizeof(MENUITEMINFOW),
 					.fMask = MIIM_STATE,
 					.fState = MFS_CHECKED
@@ -52,7 +52,7 @@ namespace UI
 		 */
 		void appendSeparator()
 		{
-			UINT id = nextId;
+			const UINT id = nextId;
 			nextId++;
 
 			AppendMenuW(menu, MF_SEPARATOR, id, nullptr);
@@ -77,7 +77,7 @@ namespace UI
 		 * @param position The position to show the menu at.
 		 * @return The chosen item, or nothing if no option was chosen.
 		 */
-		std::optional<ITEM> track(POINT position) const
+		std::optional<ITEM> track(const POINT position) const
 		{
 			const UINT id = TrackPopupMenu(
 				menu,

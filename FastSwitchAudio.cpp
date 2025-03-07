@@ -9,10 +9,10 @@
 #include "utils.h"
 
 int APIENTRY wWinMain(
-	_In_ HINSTANCE hInstance,
-	_In_opt_ HINSTANCE __prevInst,
-	_In_ LPWSTR lpCmdLine,
-	_In_ int showWindowMode
+	_In_ const HINSTANCE hInstance,
+	_In_opt_ HINSTANCE,
+	_In_ LPWSTR,
+	_In_ int
 )
 {
 	if (FAILED(CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE)))
@@ -57,7 +57,7 @@ int APIENTRY wWinMain(
 		return FALSE;
 	}
 
-	HMENU popupMenuHandle = CreatePopupMenu();
+	const HMENU popupMenuHandle = CreatePopupMenu();
 
 	if (popupMenuHandle == nullptr)
 	{
@@ -68,7 +68,7 @@ int APIENTRY wWinMain(
 	g_popupMenu = new UI::PopupMenu<MenuItemData>(g_trayWindow, popupMenuHandle);
 	g_audioDeviceManager = new Audio::DeviceManager(RefreshPopupMenu, ShowFatalError);
 
-	if (auto error = g_audioDeviceManager->refresh())
+	if (const auto error = g_audioDeviceManager->refresh())
 	{
 		ShowFatalError(error->explanation);
 		return FALSE;
@@ -96,7 +96,7 @@ int APIENTRY wWinMain(
 		return FALSE;
 	}
 
-	HACCEL acceleratorTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_FASTSWITCHAUDIO));
+	const auto acceleratorTable = LoadAcceleratorsW(hInstance, MAKEINTRESOURCE(IDC_FASTSWITCHAUDIO));
 	MSG msg;
 
 	while (GetMessageW(&msg, nullptr, 0, 0))
@@ -108,7 +108,7 @@ int APIENTRY wWinMain(
 		}
 	}
 
-	return (int) msg.wParam;
+	return static_cast<int>(msg.wParam);
 }
 
 void RefreshPopupMenu()
@@ -121,11 +121,11 @@ void RefreshPopupMenu()
 
 	for (const Audio::Device& device : g_audioDeviceManager->devices)
 	{
-		bool isDefault = (device.id == defaultConsoleDevice.id)
-		                 || (device.id == defaultMediaDevice.id)
-		                 || (device.id == defaultCommsDevice.id);
+		const bool isDefault = (device.id == defaultConsoleDevice.id)
+		                       || (device.id == defaultMediaDevice.id)
+		                       || (device.id == defaultCommsDevice.id);
 
-		std::wstring label = std::wstring(device.getName());
+		const auto label = device.getName();
 
 		// TODO: C++ may be sneakily doing the whole copy constructor business here, I haven't checked though.
 		g_popupMenu->append(MenuItemData::device(device.id), label, isDefault);
@@ -136,7 +136,12 @@ void RefreshPopupMenu()
 	g_popupMenu->append(MenuItemData::button(MenuItemData::Type::ExitButton), L"Quit");
 }
 
-LRESULT CALLBACK TrayWindowProc(HWND window, UINT message, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK TrayWindowProc(
+	const HWND window,
+	const UINT message,
+	const WPARAM wParam,
+	const LPARAM lParam
+)
 {
 	switch (message)
 	{
@@ -157,7 +162,7 @@ LRESULT CALLBACK TrayWindowProc(HWND window, UINT message, WPARAM wParam, LPARAM
 						break;
 					}
 
-					MenuItemData item = maybeItem.value();
+					const auto item = maybeItem.value();
 
 					switch (item.type)
 					{
@@ -171,7 +176,7 @@ LRESULT CALLBACK TrayWindowProc(HWND window, UINT message, WPARAM wParam, LPARAM
 
 						case MenuItemData::Type::RefreshButton:
 						{
-							if (auto error = g_audioDeviceManager->refresh())
+							if (const auto error = g_audioDeviceManager->refresh())
 							{
 								ShowFatalError(error->explanation);
 								break;

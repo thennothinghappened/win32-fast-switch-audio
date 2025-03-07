@@ -5,7 +5,7 @@
 
 using namespace Audio;
 
-DeviceManager::DeviceManager(const OnChange onChange, const OnFatalError onFatalError)
+DeviceManager::DeviceManager(const OnChange& onChange, const OnFatalError& onFatalError)
 	: onChange(onChange), onFatalError(onFatalError)
 {
 	if (FAILED(CoCreateInstance(__uuidof(CPolicyConfigClient), nullptr, CLSCTX_ALL, IID_PPV_ARGS(&policyConfig))))
@@ -31,7 +31,7 @@ Audio::DeviceManager::~DeviceManager()
 	notificationClient->Release();
 }
 
-const std::optional<Error> DeviceManager::refresh()
+std::optional<Error> DeviceManager::refresh()
 {
 	ComPtr<IMMDeviceCollection> mmOutputs;
 	devices.clear();
@@ -87,7 +87,7 @@ const std::optional<Error> DeviceManager::refresh()
 	return std::nullopt;
 }
 
-const Device& DeviceManager::operator[](Device::Id id) const
+const Device& DeviceManager::operator[](Device::Id& id) const
 {
 	for (const Device& device : devices)
 	{
@@ -100,7 +100,7 @@ const Device& DeviceManager::operator[](Device::Id id) const
 	throw std::logic_error("Couldn't find the device associated with the provided ID");
 }
 
-Device& DeviceManager::operator[](Device::Id id)
+Device& DeviceManager::operator[](Device::Id& id)
 {
 	for (Device& device : devices)
 	{
@@ -113,7 +113,7 @@ Device& DeviceManager::operator[](Device::Id id)
 	throw std::logic_error("Couldn't find the device associated with the provided ID");
 }
 
-const Device& DeviceManager::getDefault(ERole role) const
+const Device& DeviceManager::getDefault(const ERole role) const
 {
 	ComPtr<IMMDevice> mmDevice;
 	deviceEnumerator->GetDefaultAudioEndpoint(eRender, role, &mmDevice); // TODO: error handling.
@@ -132,7 +132,7 @@ std::optional<Error> Audio::DeviceManager::setDefault(const Device& device)
 	return setDefault(device.id);
 }
 
-std::optional<Error> Audio::DeviceManager::setDefault(Device::Id id)
+std::optional<Error> Audio::DeviceManager::setDefault(Device::Id& id)
 {
 	if (SUCCEEDED(policyConfig->SetDefaultEndpoint(id.data(), eConsole))
 	    && SUCCEEDED(policyConfig->SetDefaultEndpoint(id.data(), eMultimedia))

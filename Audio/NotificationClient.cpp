@@ -5,7 +5,7 @@ using namespace Audio;
 
 HRESULT __stdcall DeviceManager::NotificationClient::OnDeviceStateChanged(LPCWSTR pwstrDeviceId, DWORD dwNewState)
 {
-	if (auto maybeError = deviceManager->refresh())
+	if (const auto maybeError = deviceManager->refresh())
 	{
 		deviceManager->onFatalError(maybeError->explanation);
 	}
@@ -15,7 +15,7 @@ HRESULT __stdcall DeviceManager::NotificationClient::OnDeviceStateChanged(LPCWST
 
 HRESULT __stdcall DeviceManager::NotificationClient::OnDeviceAdded(LPCWSTR pwstrDeviceId)
 {
-	if (auto maybeError = deviceManager->refresh())
+	if (const auto maybeError = deviceManager->refresh())
 	{
 		deviceManager->onFatalError(maybeError->explanation);
 	}
@@ -25,7 +25,7 @@ HRESULT __stdcall DeviceManager::NotificationClient::OnDeviceAdded(LPCWSTR pwstr
 
 HRESULT __stdcall DeviceManager::NotificationClient::OnDeviceRemoved(LPCWSTR pwstrDeviceId)
 {
-	if (auto maybeError = deviceManager->refresh())
+	if (const auto maybeError = deviceManager->refresh())
 	{
 		deviceManager->onFatalError(maybeError->explanation);
 	}
@@ -39,7 +39,7 @@ HRESULT __stdcall DeviceManager::NotificationClient::OnDefaultDeviceChanged(
 	LPCWSTR pwstrDefaultDeviceId
 )
 {
-	if (auto maybeError = deviceManager->refresh())
+	if (const auto maybeError = deviceManager->refresh())
 	{
 		deviceManager->onFatalError(maybeError->explanation);
 	}

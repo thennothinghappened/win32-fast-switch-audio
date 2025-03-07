@@ -37,7 +37,7 @@ struct MenuItemData
 	 */
 	const std::optional<Audio::Device::Id> audioDeviceId;
 
-	static MenuItemData device(Audio::Device::Id deviceId)
+	static MenuItemData device(Audio::Device::Id& deviceId)
 	{
 		return MenuItemData {
 			.type = Type::AudioDevice,
@@ -45,7 +45,7 @@ struct MenuItemData
 		};
 	}
 
-	static MenuItemData button(Type type)
+	static MenuItemData button(const Type type)
 	{
 		return MenuItemData {
 			.type = type,

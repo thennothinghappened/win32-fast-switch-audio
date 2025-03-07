@@ -16,13 +16,13 @@ namespace Audio
 		 */
 		using Id = const std::wstring;
 
-		Device(IMMDevice* mmDevice, IPropertyStore* propertyStore, std::wstring id);
+		Device(IMMDevice* mmDevice, IPropertyStore* propertyStore, const std::wstring& id);
 
 		Device(Device&& device) noexcept;
 
 		~Device();
 
-		const std::wstring getName() const;
+		std::wstring getName() const;
 
 		Id id;
 

@@ -22,7 +22,7 @@ namespace Audio
 		 * @param onChange Callback upon something about the device list changing. This is lazy, but given the scope of this app, works.
 		 * @param onFatalError Callback upon an unrecoverable error occurring. Again, using this due to the small scope of this application - COM failures aren't really that "recoverable" I would imagine, since this app has only one real function anyway.
 		 */
-		DeviceManager(const OnChange onChange, const OnFatalError onFatalError);
+		DeviceManager(const OnChange& onChange, const OnFatalError& onFatalError);
 
 		~DeviceManager();
 
@@ -31,21 +31,21 @@ namespace Audio
 		 * @return An error, if one occurred during the operation.
 		 */
 		[[nodiscard]]
-		const std::optional<Error> refresh();
+		std::optional<Error> refresh();
 
 		/**
 		 * @brief Gets an audio device by its unique ID.
 		 * @param id Opaque identifier of the audio device.
 		 * @return The audio device associated with the provided ID.
 		 */
-		const Device& operator[](Device::Id id) const;
+		const Device& operator[](Device::Id& id) const;
 
 		/**
 		 * @brief Gets an audio device by its unique ID.
 		 * @param id Opaque identifier of the audio device.
 		 * @return The audio device associated with the provided ID.
 		 */
-		Device& operator[](Device::Id id);
+		Device& operator[](Device::Id& id);
 
 		/**
 		 * @brief Gets the audio device that's been set as the default.
@@ -63,7 +63,7 @@ namespace Audio
 		 * @brief Sets the default audio device for all roles.
 		 * @param id The ID of the device to be the default.
 		 */
-		std::optional<Error> setDefault(Device::Id id);
+		std::optional<Error> setDefault(Device::Id& id);
 
 		std::vector<Device> devices;
 

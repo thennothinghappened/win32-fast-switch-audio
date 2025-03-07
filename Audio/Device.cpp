@@ -4,8 +4,8 @@
 
 using namespace Audio;
 
-Device::Device(IMMDevice* mmDevice, IPropertyStore* propertyStore, std::wstring id)
-	: mmDevice(mmDevice), propertyStore(propertyStore), id(id)
+Device::Device(IMMDevice* mmDevice, IPropertyStore* propertyStore, const std::wstring& id)
+	: id(id), mmDevice(mmDevice), propertyStore(propertyStore)
 {
 	OutputDebugStringW(std::format(L"Creating new {}!\n", getName()).c_str());
 	mmDevice->AddRef();
@@ -13,7 +13,7 @@ Device::Device(IMMDevice* mmDevice, IPropertyStore* propertyStore, std::wstring 
 }
 
 Device::Device(Device&& device) noexcept
-	: mmDevice(device.mmDevice), propertyStore(device.propertyStore), id(device.id)
+	: id(device.id), mmDevice(device.mmDevice), propertyStore(device.propertyStore)
 {
 	OutputDebugStringW(std::format(L"Copying {}!\n", getName()).c_str());
 	mmDevice->AddRef();
@@ -27,7 +27,7 @@ Device::~Device()
 	mmDevice->Release();
 }
 
-const std::wstring Device::getName() const
+std::wstring Device::getName() const
 {
 	PROPVARIANT shortName;
 	PROPVARIANT longName;
