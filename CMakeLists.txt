@@ -13,7 +13,6 @@ target_sources(FastSwitchAudio PRIVATE src/FastSwitchAudio.rc)
 target_compile_definitions(FastSwitchAudio PRIVATE
         UNICODE
         _UNICODE
-        _DEBUG
         WIN32_LEAN_AND_MEAN
 )
 
