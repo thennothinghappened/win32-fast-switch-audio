@@ -16,8 +16,7 @@ template<std::derived_from<IUnknown> T>
 class ComPtr
 {
 public:
-	ComPtr()
-	{}
+	ComPtr() = default;
 
 	ComPtr(const ComPtr& other)
 		: ptr(other.ptr)
