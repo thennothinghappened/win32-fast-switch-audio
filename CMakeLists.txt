@@ -18,6 +18,24 @@ target_compile_definitions(FastSwitchAudio PRIVATE
         WIN32_LEAN_AND_MEAN
 )
 
+if (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+    target_compile_options(FastSwitchAudio PRIVATE
+            /Wall
+            /external:anglebrackets
+            /external:W0
+            /external:templates-)
+else ()
+    target_compile_options(FastSwitchAudio PRIVATE
+            -Wall
+            -Wno-shadow-field-in-constructor
+            -Wno-language-extension-token
+            -Wno-missing-designated-field-initializers
+            -Wno-switch-default
+            -Wno-c++98-compat
+            -Wno-c++98-compat-pedantic
+            -Wno-c++98-compat-extra-semi)
+endif ()
+
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     target_compile_definitions(FastSwitchAudio PRIVATE _DEBUG)
 endif ()
