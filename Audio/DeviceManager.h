@@ -75,7 +75,7 @@ namespace Audio
 		class NotificationClient final : public IMMNotificationClient
 		{
 		public:
-			NotificationClient(DeviceManager* deviceManager)
+			explicit NotificationClient(DeviceManager* deviceManager)
 				: deviceManager(deviceManager) {}
 
 			HRESULT __stdcall OnDeviceStateChanged(LPCWSTR pwstrDeviceId, DWORD dwNewState) override;
