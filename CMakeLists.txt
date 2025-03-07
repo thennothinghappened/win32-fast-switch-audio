@@ -12,18 +12,8 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
 endif ()
 
 add_executable(FastSwitchAudio WIN32 FastSwitchAudio.cpp
-        FastSwitchAudio.h
-        PolicyConfig.h
-        PopupMenu.h
-        utils.h
-        resource.h
-        targetver.h
-        framework.h
-        Audio/Audio.h
         Audio/Device.cpp
-        Audio/Device.h
         Audio/DeviceManager.cpp
-        Audio/DeviceManager.h
         Audio/NotificationClient.cpp)
 
 target_sources(FastSwitchAudio PRIVATE FastSwitchAudio.rc)
