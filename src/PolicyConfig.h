@@ -31,6 +31,15 @@ THE SOFTWARE.
 #pragma once
 #include <mmreg.h>
 
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable: 5204)
+#endif
+
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnon-virtual-dtor"
+#endif
 
 interface DECLSPEC_UUID("f8679f50-850a-41cf-9c72-430f290290c8") IPolicyConfig;
 class DECLSPEC_UUID("870af99c-171d-4f9e-af0d-e63df40c2bc9") CPolicyConfigClient;
@@ -198,4 +207,10 @@ public:
 	);  // not available on Windows 7, use method from IPolicyConfig
 };
 
-// ----------------------------------------------------------------------------
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
+
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif

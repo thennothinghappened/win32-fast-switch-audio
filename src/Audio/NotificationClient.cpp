@@ -3,7 +3,7 @@
 
 using namespace Audio;
 
-HRESULT __stdcall DeviceManager::NotificationClient::OnDeviceStateChanged(LPCWSTR pwstrDeviceId, DWORD dwNewState)
+HRESULT __stdcall DeviceManager::NotificationClient::OnDeviceStateChanged(LPCWSTR, DWORD)
 {
 	if (const auto maybeError = deviceManager->refresh())
 	{
@@ -13,7 +13,7 @@ HRESULT __stdcall DeviceManager::NotificationClient::OnDeviceStateChanged(LPCWST
 	return S_OK;
 }
 
-HRESULT __stdcall DeviceManager::NotificationClient::OnDeviceAdded(LPCWSTR pwstrDeviceId)
+HRESULT __stdcall DeviceManager::NotificationClient::OnDeviceAdded(LPCWSTR)
 {
 	if (const auto maybeError = deviceManager->refresh())
 	{
@@ -23,7 +23,7 @@ HRESULT __stdcall DeviceManager::NotificationClient::OnDeviceAdded(LPCWSTR pwstr
 	return S_OK;
 }
 
-HRESULT __stdcall DeviceManager::NotificationClient::OnDeviceRemoved(LPCWSTR pwstrDeviceId)
+HRESULT __stdcall DeviceManager::NotificationClient::OnDeviceRemoved(LPCWSTR)
 {
 	if (const auto maybeError = deviceManager->refresh())
 	{
@@ -34,9 +34,9 @@ HRESULT __stdcall DeviceManager::NotificationClient::OnDeviceRemoved(LPCWSTR pws
 }
 
 HRESULT __stdcall DeviceManager::NotificationClient::OnDefaultDeviceChanged(
-	EDataFlow flow,
-	ERole role,
-	LPCWSTR pwstrDefaultDeviceId
+	EDataFlow,
+	ERole,
+	LPCWSTR
 )
 {
 	if (const auto maybeError = deviceManager->refresh())
@@ -48,8 +48,8 @@ HRESULT __stdcall DeviceManager::NotificationClient::OnDefaultDeviceChanged(
 }
 
 HRESULT __stdcall DeviceManager::NotificationClient::OnPropertyValueChanged(
-	LPCWSTR pwstrDeviceId,
-	const PROPERTYKEY key
+	LPCWSTR,
+	const PROPERTYKEY
 )
 {
 	return S_OK;

@@ -18,10 +18,17 @@ namespace Audio
 
 		Device(IMMDevice* mmDevice, IPropertyStore* propertyStore, const std::wstring& id);
 
+		Device(const Device& device) = delete;
+
 		Device(Device&& device) noexcept;
+
+		Device& operator=(const Device& other) = delete;
+
+		Device& operator=(Device&& other) noexcept = delete;
 
 		~Device();
 
+		[[nodiscard]]
 		std::wstring getName() const;
 
 		Id id;

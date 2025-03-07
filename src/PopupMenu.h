@@ -13,7 +13,7 @@ namespace UI
 	class PopupMenu
 	{
 	public:
-		PopupMenu(const HWND owner, const HMENU menu)
+		PopupMenu(HWND owner, HMENU menu)
 			: menu(menu), owner(owner) {}
 
 		~PopupMenu()
@@ -29,7 +29,7 @@ namespace UI
 		 */
 		void append(ITEM item, const std::wstring& label, const bool checked = false)
 		{
-			UINT id = nextId;
+			const UINT id = nextId;
 			nextId++;
 
 			items.insert({ id, item });
@@ -79,14 +79,16 @@ namespace UI
 		 */
 		std::optional<ITEM> track(const POINT position) const
 		{
-			const UINT id = TrackPopupMenu(
-				menu,
-				TPM_LEFTALIGN | TPM_LEFTBUTTON | TPM_RIGHTBUTTON | TPM_RETURNCMD,
-				position.x,
-				position.y,
-				0,
-				owner,
-				nullptr
+			const auto id = static_cast<UINT>(
+				TrackPopupMenu(
+					menu,
+					TPM_LEFTALIGN | TPM_LEFTBUTTON | TPM_RIGHTBUTTON | TPM_RETURNCMD,
+					position.x,
+					position.y,
+					0,
+					owner,
+					nullptr
+				)
 			);
 
 			if (id == 0)
@@ -104,8 +106,8 @@ namespace UI
 		}
 
 	private:
-		const HMENU menu;
-		const HWND owner;
+		HMENU menu;
+		HWND owner;
 
 		/**
 		 * @brief The first ID to be used. Win32 gives special meaning to `0`, so we start at `1`.

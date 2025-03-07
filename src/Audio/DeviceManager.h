@@ -18,7 +18,6 @@ namespace Audio
 		using OnFatalError = std::function<void(std::wstring message)>;
 
 		/**
-		 * @brief 
 		 * @param onChange Callback upon something about the device list changing. This is lazy, but given the scope of this app, works.
 		 * @param onFatalError Callback upon an unrecoverable error occurring. Again, using this due to the small scope of this application - COM failures aren't really that "recoverable" I would imagine, since this app has only one real function anyway.
 		 */
@@ -38,6 +37,7 @@ namespace Audio
 		 * @param id Opaque identifier of the audio device.
 		 * @return The audio device associated with the provided ID.
 		 */
+		[[nodiscard]]
 		const Device& operator[](Device::Id& id) const;
 
 		/**
@@ -45,12 +45,14 @@ namespace Audio
 		 * @param id Opaque identifier of the audio device.
 		 * @return The audio device associated with the provided ID.
 		 */
+		[[nodiscard]]
 		Device& operator[](Device::Id& id);
 
 		/**
 		 * @brief Gets the audio device that's been set as the default.
 		 * @return The default audio device.
 		 */
+		[[nodiscard]]
 		const Device& getDefault(ERole role) const;
 
 		/**
@@ -95,8 +97,8 @@ namespace Audio
 			ULONG __stdcall Release() override;
 
 		private:
-			ULONG refCount = 1;
 			DeviceManager* deviceManager;
+			ULONG refCount = 1;
 		};
 
 		IPolicyConfig* policyConfig;
