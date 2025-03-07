@@ -10,6 +10,8 @@ add_executable(FastSwitchAudio WIN32 src/FastSwitchAudio.cpp
 
 target_sources(FastSwitchAudio PRIVATE src/FastSwitchAudio.rc)
 
+target_include_directories(FastSwitchAudio PRIVATE src)
+
 target_compile_definitions(FastSwitchAudio PRIVATE
         UNICODE
         _UNICODE
