@@ -11,9 +11,9 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_definitions(-D_DEBUG)
 endif ()
 
-add_executable(FastSwitchAudio WIN32 FastSwitchAudio.cpp
-        Audio/Device.cpp
-        Audio/DeviceManager.cpp
-        Audio/NotificationClient.cpp)
+add_executable(FastSwitchAudio WIN32 src/FastSwitchAudio.cpp
+        src/Audio/Device.cpp
+        src/Audio/DeviceManager.cpp
+        src/Audio/NotificationClient.cpp)
 
-target_sources(FastSwitchAudio PRIVATE FastSwitchAudio.rc)
+target_sources(FastSwitchAudio PRIVATE src/FastSwitchAudio.rc)
