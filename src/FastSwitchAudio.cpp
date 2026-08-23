@@ -149,7 +149,7 @@ LRESULT CALLBACK TrayWindowProc(
 		{
 			switch (LOWORD(lParam))
 			{
-				case WM_RBUTTONDOWN:
+				case WM_LBUTTONDOWN:
 				{
 					POINT cursorPos;
 					GetCursorPos(&cursorPos);
